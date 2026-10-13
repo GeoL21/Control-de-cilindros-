@@ -348,7 +348,7 @@ let modalId=null;
 async function modal(r,rec){modalId=rec.id;const t=$('mTit'),x=$('mTxt'),j=$('mJpg');j.style.display='none';t.className='';
  const tit=(ic,tx)=>{t.innerHTML=ic+'<span></span>';t.lastChild.textContent=tx;};
  if(r==='guardada'){tit(IC.ok,'Ronda guardada');t.className='aviso';x.textContent='Guardada en este celular. Enviando al servidor…';}
- else if(r.ok){tit(IC.ok,'Ronda registrada');x.textContent='La imagen JPG quedó guardada en Drive y la ronda en el historial.';j.href=r.url;j.style.display='block';}
+ else if(r.ok){tit(IC.ok,'Ronda registrada');x.textContent='La imagen JPG quedó guardada en Drive y la ronda en el historial.';const u=urlJpg(r.url);if(u){j.href=u;j.style.display='block';}}
  else if(r.error){tit(IC.al,'Ronda guardada, pero el servidor la rechazó');t.className='mal';x.textContent=r.error+' La ronda sigue guardada en este celular; avísale al administrador.';}
  else{tit(IC.ok,'Ronda guardada en el celular');t.className='aviso';x.textContent='Aún no se pudo enviar (sin conexión o señal débil). Se enviará sola cuando haya internet. No borres los datos de la app hasta que desaparezca el aviso de pendientes.';}
  const d=$('mDown');d.href=rec.imagen;d.download='Ronda_'+rec.sede+'_'+rec.id+'.jpg';
@@ -442,6 +442,10 @@ async function dibujar(D,A){
 }
 
 /* ---------- Historial (guardado en el celular + rondas pendientes) ---------- */
+/* Solo se enlaza un JPG con dirección completa de Drive; si el servidor
+   devuelve otra cosa (vacío, texto o solo el ID), no se abre una página
+   inexistente de GitHub (error 404). */
+function urlJpg(u){u=String(u||'').trim();if(/^https?:\/\//i.test(u))return u;if(/^[-\w]{25,}$/.test(u))return 'https://drive.google.com/file/d/'+u+'/view';return '';}
 async function descargarLocal(id){const r=await colaGet(id);if(!r)return;const a=document.createElement('a');a.href=r.imagen;a.download='Ronda_'+r.sede+'_'+r.id+'.jpg';document.body.appendChild(a);a.click();a.remove();}
 async function reintentar(){toast('Enviando…');const r=await sincronizar();const e=Object.values(r).find(o=>o.error);if(e)toast('El servidor rechazó una ronda: '+e.error);pintarHist();}
 async function pintarHist(){const cache=ls.get('hist',null),h=(cache&&cache.h)||{};let cola=[];try{cola=await colaAll();}catch(e){}
@@ -451,7 +455,7 @@ async function pintarHist(){const cache=ls.get('hist',null),h=(cache&&cache.h)||
   const l=h[s]||[],p=cola.filter(r=>r.sede===s).sort((a,b)=>b.creada-a.creada);
   const pend=p.map(r=>`<div class="hit pend"><b>${esc(r.fecha)} · ${esc(r.hora)}</b><small>Lugar: ${esc(r.lugar)}</small><small>Ronda: ${esc(r.realiza)}</small><small>Recibe: ${esc(r.recibe)}</small><small>${r.items.length} ${r.items.length===1?'cilindro':'cilindros'}</small>
    <span class="tag ${r.estado==='error'?'mal':''}">${r.estado==='error'?'Rechazada: '+esc(r.error):'Pendiente de envío'}</span><button onclick="reintentar()">Enviar ahora</button><button class="sec" onclick="descargarLocal('${esc(r.id)}')">Descargar JPG</button></div>`).join('');
-  const env=l.map(r=>`<div class="hit"><b>${esc(r.fecha)} · ${esc(r.hora)}</b><small>Lugar: ${esc(r.lugar)}</small><small>Ronda: ${esc(r.realiza)}</small><small>Recibe: ${esc(r.recibe)}</small><small>${esc(r.total)} ${String(r.total)==='1'?'cilindro':'cilindros'}</small><a href="${esc(r.url)}" target="_blank" rel="noopener">Ver JPG</a></div>`).join('');
+  const env=l.map(r=>`<div class="hit"><b>${esc(r.fecha)} · ${esc(r.hora)}</b><small>Lugar: ${esc(r.lugar)}</small><small>Ronda: ${esc(r.realiza)}</small><small>Recibe: ${esc(r.recibe)}</small><small>${esc(r.total)} ${String(r.total)==='1'?'cilindro':'cilindros'}</small>${urlJpg(r.url)?`<a href="${esc(urlJpg(r.url))}" target="_blank" rel="noopener">Ver JPG</a>`:'<span class="tag">JPG no disponible</span>'}</div>`).join('');
   return `<div class="hcol"><h3>Historial de ${esc(s)}<span>${l.length+p.length}</span></h3>${pend}${env||(p.length?'':'<div class="vacio">Sin rondas para mostrar.</div>')}</div>`;}).join('')+'</div>';}
 async function cargarHist(silencioso){await pintarHist();
  try{const h=await api('historial',null,30000);ls.set('hist',{t:Date.now(),h});conectado=true;}

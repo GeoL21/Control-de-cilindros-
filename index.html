@@ -106,6 +106,39 @@ nav button.on{color:var(--vino);box-shadow:inset 0 3px 0 var(--vino)}
 .vacio{text-align:center;color:#8a7680;padding:24px 0;font-size:13px}
 .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--txt);color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;font-weight:600;z-index:25;opacity:0;pointer-events:none;transition:opacity .25s;max-width:90%;text-align:center}
 .toast.on{opacity:1}
+
+/* ---------- PC: pantalla completa (desde 1024 px) ---------- */
+@media (min-width:1024px){
+body{padding-bottom:0;padding-left:220px}
+header{padding:16px 28px}
+.estado{padding:9px 28px}
+nav{top:0;bottom:0;right:auto;width:220px;display:flex;flex-direction:column;gap:4px;border-top:0;border-right:1px solid var(--borde);padding:18px 12px;background:#fff}
+nav button{flex-direction:row;justify-content:flex-start;gap:12px;font-size:15px;padding:13px 14px;border-radius:12px;color:#5b4650}
+nav button:hover{background:var(--rosa)}
+nav button.on{background:var(--vino);color:#fff;box-shadow:none}
+.wrap,.wrap.ancho{max-width:none;padding:22px 28px}
+#vNueva:not([style*="none"]){display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:18px;align-items:start}
+#vNueva .card,#vNueva .add{margin-bottom:0}
+#vNueva>.card:nth-child(1){grid-column:span 3;align-self:stretch;display:flex;align-items:center}
+#vNueva>.card:nth-child(1) .reloj{width:100%;flex-direction:column;gap:6px;font-size:18px}
+#vNueva>.card:nth-child(2){grid-column:span 9}
+#vNueva>.card:nth-child(2){display:grid;grid-template-columns:minmax(260px,1fr) 2fr;column-gap:18px}
+#vNueva>.card:nth-child(2) h2{grid-column:1/-1}
+#vNueva>.card:nth-child(2) .f label{margin-top:0}
+#lista{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:18px;align-items:start}
+#lista .card{margin:0}
+#vNueva>.add{grid-column:1/-1}
+#vNueva>.card:nth-child(5),#vNueva>.card:nth-child(6){grid-column:span 6}
+#vNueva>.falta{grid-column:span 8;margin:0;align-self:center}
+#vNueva>.reg{grid-column:span 4}
+.hgrid{gap:18px}
+.hcol{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;align-content:start;padding:12px}
+.hcol h3,.hcol .vacio{grid-column:1/-1;margin:0}
+.hit{margin:0}
+.toast{bottom:28px;left:calc(50% + 110px)}
+button:not(:disabled),a{cursor:pointer}
+.chip:hover,.seg button:hover{border-color:var(--vino)}
+}
 </style></head><body>
 <header><img src="logo.jpg" alt=""><div><h1>Control de cilindros de gas</h1><p>Clínica Reina Catalina · Ronda diaria</p></div></header>
 <div class="estado" id="estBox"><div class="pt"><span class="ico" id="dot"></span><span id="estTxt">…</span></div><div style="display:flex;gap:6px"><button class="sec" id="btnInst" style="display:none">Instalar</button><button id="btnSync" style="display:none" onclick="sincronizar()">Enviar ahora</button></div></div>

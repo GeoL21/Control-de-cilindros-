@@ -51,6 +51,7 @@ canvas.firma{width:100%;height:150px;border:1.5px dashed var(--vino);border-radi
 .seg button,.chip{min-height:48px;border:1.5px solid var(--borde);border-radius:12px;background:#fff;color:var(--txt);font:inherit;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 12px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{min-height:44px;border-radius:22px;font-size:14px;font-weight:600;padding:0 14px}
+.sug{margin-top:8px}.sug:empty{display:none}.sug .chip{font-weight:500;text-align:left}.sug .chip b{font-weight:800;color:var(--vino)}
 .seg button .i,.chip .i{display:none;width:15px;height:15px}
 .seg button.on,.chip.on{background:var(--vino);border-color:var(--vino);color:#fff}
 .seg button.on .i,.chip.on .i{display:block}
@@ -280,12 +281,26 @@ function addItem(quieto){const d=document.createElement('div');d.className='card
  d.innerHTML=`<div class="resu"><span class="rn">${IC.ok}</span><div class="rt"><b></b><small></small></div><button type="button" class="ed" onclick="abrir(this)">Editar</button></div>
  <div class="det"><div class="item-h"><b class="num"></b><button type="button" class="del" onclick="delItem(this)">Quitar</button></div>
  <div class="f"><span class="lab">Tipo de gas</span><div class="chips gasC" role="group" aria-label="Tipo de gas">${GASES.map(g=>`<button type="button" class="chip" data-v="${g}" aria-pressed="false" onclick="elegirGas(this)">${IC.ok}${g}</button>`).join('')}</div><input type="hidden" class="gas"></div>
- <div class="fila"><div class="f"><label>Serial del cilindro<input class="serial" autocomplete="off" style="margin-top:6px"></label></div>
+ <div class="fila"><div class="f"><label>Serial del cilindro<input class="serial" autocomplete="off" autocapitalize="characters" spellcheck="false" style="margin-top:6px"></label></div>
  <div class="f"><label>Presión interna<div class="pres" style="margin-top:6px"><input class="presion" inputmode="decimal" autocomplete="off"><b class="u">PSI</b></div></label></div></div>
  <div class="f"><label>Ubicación del cilindro<select class="ubic" onchange="ubicOtra(this)" style="margin-top:6px">${opts(UBIC)}</select></label>
  <input class="ubicOtra otro" autocomplete="off" placeholder="Escribe la ubicación" aria-label="Otra ubicación"></div>
- <div class="f"><label>Observación<textarea class="obs" style="margin-top:6px"></textarea></label></div></div>`;
- $('lista').appendChild(d);cerrarCompletos(d);num();if(!quieto)d.scrollIntoView({behavior:SUAVE,block:'start'});guardarBorrador();actualizar();return d;}
+ <div class="f"><label>Observación<textarea class="obs" placeholder="Escribe o toca una sugerencia" style="margin-top:6px"></textarea></label><div class="chips sug" role="group" aria-label="Observaciones sugeridas"></div></div></div>`;
+ $('lista').appendChild(d);pintaSug(d);cerrarCompletos(d);num();if(!quieto)d.scrollIntoView({behavior:SUAVE,block:'start'});guardarBorrador();actualizar();return d;}
+/* Serial siempre en mayúsculas; observaciones sugeridas (las más usadas en este teléfono) */
+const OBS_K='obsUsadas',quitaTildes=t=>t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+function obsUsadas(){const m=ls.get(OBS_K,{});return Object.keys(m).sort((a,b)=>m[b]-m[a]);}
+function recordarObs(items){const m=ls.get(OBS_K,{});items.forEach(i=>{const t=(i.obs||'').replace(/\s+/g,' ').trim();if(t)m[t]=(m[t]||0)+1;});
+ const top=Object.keys(m).sort((a,b)=>m[b]-m[a]).slice(0,50),n={};top.forEach(k=>n[k]=m[k]);ls.set(OBS_K,n);}
+function pintaSug(e){const caja=e.querySelector('.sug');if(!caja)return;const esc=t=>t.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ const v=e.querySelector('.obs').value.trim(),q=quitaTildes(v);
+ const l=obsUsadas().filter(t=>t!==v&&(!q||quitaTildes(t).includes(q))).slice(0,6);
+ caja.innerHTML=l.map(t=>{let h=esc(t);if(q){const i=quitaTildes(t).indexOf(q);h=esc(t.slice(0,i))+'<b>'+esc(t.slice(i,i+q.length))+'</b>'+esc(t.slice(i+q.length));}
+  return `<button type="button" class="chip" data-t="${esc(t)}" onclick="usarSug(this)">${h}</button>`;}).join('');}
+function usarSug(b){const e=b.closest('.item'),o=e.querySelector('.obs');o.value=b.dataset.t;pintaSug(e);guardarBorrador();actualizar();}
+document.addEventListener('input',ev=>{const t=ev.target;
+ if(t.classList&&t.classList.contains('serial')){const p=t.selectionStart,v=t.value.toUpperCase();if(v!==t.value){t.value=v;try{t.setSelectionRange(p,p);}catch(e){}}}
+ else if(t.classList&&t.classList.contains('obs'))pintaSug(t.closest('.item'));},true);
 function delItem(b){const it=b.closest('.item');if(it.classList.contains('saliendo')||document.querySelectorAll('.item:not(.saliendo)').length<2)return;it.classList.add('saliendo');setTimeout(()=>{it.remove();num();guardarBorrador();actualizar();},150);}
 function num(){document.querySelectorAll('.item').forEach((e,i)=>{e.querySelector('.num').textContent='Cilindro '+(i+1);if(e.classList.contains('cerrado'))pintaResu(e,i+1);});}
 function setGas(e,v){e.querySelector('.gas').value=GASES.includes(v)?v:'';const g=e.querySelector('.gas').value;
@@ -363,9 +378,9 @@ function restaurar(){const b=ls.get('borrador',null);$('lista').innerHTML='';
  $('lugar').value=b.lugar||'';$('recibe').value=b.recibe||'';
  b.items.forEach(it=>{const e=addItem(true),set=(s,v)=>{e.querySelector(s).value=v||'';};
   setGas(e,it.gas);
-  set('.serial',it.serial);set('.presion',it.presion);
+  set('.serial',(it.serial||'').toUpperCase());set('.presion',it.presion);
   if([...e.querySelector('.ubic').options].some(o=>o.value===it.ubic))e.querySelector('.ubic').value=it.ubic;
-  e.querySelector('.ubicOtra').style.display=it.ubic==='Otra'?'block':'none';set('.ubicOtra',it.ubicOtra);set('.obs',it.obs);});
+  e.querySelector('.ubicOtra').style.display=it.ubic==='Otra'?'block':'none';set('.ubicOtra',it.ubicOtra);set('.obs',it.obs);pintaSug(e);});
  pads.c1.cargar(b.f1);pads.c2.cargar(b.f2);
  formListo=true;
  const its=[...document.querySelectorAll('.item')];cerrarCompletos(its.every(completo)?null:its[its.length-1]);setTimeout(actualizar,400);
@@ -387,7 +402,7 @@ async function registrar(){
   toast('Completa lo marcado en rojo para registrar');return;}
  const sede=$('sede').value,lugar=$('lugar').value.trim();
  const items=[...document.querySelectorAll('.item')].map(e=>{const u=e.querySelector('.ubic').value;
-  return{gas:e.querySelector('.gas').value,serial:e.querySelector('.serial').value.trim(),presion:e.querySelector('.presion').value.trim(),
+  return{gas:e.querySelector('.gas').value,serial:e.querySelector('.serial').value.trim().toUpperCase(),presion:e.querySelector('.presion').value.trim(),
    ubicacion:u==='Otra'?e.querySelector('.ubicOtra').value.trim():u,obs:e.querySelector('.obs').value.trim()};});
  const sel=$('realiza').value,realiza=sel===OTRO?titulo($('realizaOtro').value):sel,recibe=titulo($('recibe').value);
  const b=$('btnReg');b.disabled=true;b.textContent='Generando imagen…';
@@ -396,7 +411,7 @@ async function registrar(){
   const jpg=await dibujar(D,A);
   const rec={id:A.id,sede,lugar,items,realiza,recibe,fecha:A.fecha,hora:A.hora,imagen:jpg,estado:'pendiente',creada:Date.now()};
   try{await colaPut(rec);}catch(e){return aviso('La ronda NO se registró','No se pudo guardar en este celular (sin espacio o almacenamiento bloqueado).');}
-  ls.del('borrador');
+  ls.del('borrador');recordarObs(items);
   const l=cfg.responsables[sede]=cfg.responsables[sede]||[];if(!l.some(n=>n.toLowerCase()===realiza.toLowerCase())){l.push(realiza);ls.set('cfg',cfg);}
   modal('guardada',rec);await estado();
   const res=await sincronizar();modal(res&&res[rec.id]||{},rec);

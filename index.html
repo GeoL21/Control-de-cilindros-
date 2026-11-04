@@ -8,7 +8,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--vino:#6A1B3A;--vino2:#4E1229;--rosa:#F7F1F3;--borde:#DCC8D0;--txt:#26181D;--ok:#2E7D5B;--aviso:#C77700;--mal:#B3261E}
+:root{--ease-out:cubic-bezier(0.23,1,0.32,1);--vino:#6A1B3A;--vino2:#4E1229;--rosa:#F7F1F3;--borde:#DCC8D0;--txt:#26181D;--ok:#2E7D5B;--aviso:#C77700;--mal:#B3261E}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:#FBF8F9;color:var(--txt);padding-bottom:84px}
 header{background:linear-gradient(160deg,var(--vino),var(--vino2));color:#fff;padding:calc(14px + env(safe-area-inset-top)) 18px 20px;display:flex;gap:14px;align-items:center}
@@ -104,8 +104,31 @@ nav button.on{color:var(--vino);box-shadow:inset 0 3px 0 var(--vino)}
 #ingreso .go{background:var(--vino);color:#fff}
 #ingreso .err{color:var(--mal);font-size:13px;margin-top:10px;min-height:18px}
 .vacio{text-align:center;color:#8a7680;padding:24px 0;font-size:13px}
-.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--txt);color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;font-weight:600;z-index:25;opacity:0;pointer-events:none;transition:opacity .25s;max-width:90%;text-align:center}
-.toast.on{opacity:1}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--txt);color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;font-weight:600;z-index:25;opacity:0;pointer-events:none;transition:opacity 150ms var(--ease-out);max-width:90%;text-align:center}
+.toast.on{opacity:1;transition-duration:200ms}
+
+/* ---------- Movimiento (skill motion) ---------- */
+/* Botones: se encogen un poco al tocarlos, para que se note la respuesta */
+button,.modal a,.hit a{transition:transform 150ms var(--ease-out)}
+button:active:not(:disabled),.modal a:active,.hit a:active{transform:scale(.98)}
+/* Ventanas: entran en 200 ms y salen más rápido, en 150 ms (transiciones, que se pueden revertir a mitad) */
+.modal{transition:opacity 200ms var(--ease-out)}
+.modal .box{transition:opacity 200ms var(--ease-out),transform 200ms var(--ease-out)}
+@starting-style{.modal{opacity:0}.modal .box{opacity:0;transform:scale(.96)}}
+.modal.saliendo{opacity:0;transition-duration:150ms;pointer-events:none}
+.modal.saliendo .box{opacity:0;transform:scale(.96);transition-duration:150ms}
+/* Cilindros: el resumen y el detalle aparecen con un fundido; al quitar uno, se desvanece */
+.item{transition:opacity 150ms var(--ease-out),transform 150ms var(--ease-out)}
+.item .det,.item .resu{transition:opacity 200ms var(--ease-out)}
+@starting-style{.item .det,.item.cerrado .resu{opacity:0}}
+.item.saliendo{opacity:0;transform:scale(.98);pointer-events:none}
+/* Si el teléfono tiene activado "reducir movimiento": solo fundidos, sin escalas ni parpadeo */
+@media (prefers-reduced-motion:reduce){
+ .estado.sync .ico,.dot.sync{animation:none}
+ button:active:not(:disabled),.modal a:active,.hit a:active{transform:none}
+ .modal .box,.modal.saliendo .box,.item.saliendo{transform:none}
+ @starting-style{.modal .box{transform:none}}
+}
 
 /* ---------- PC: pantalla completa (desde 1024 px) ---------- */
 @media (min-width:1024px){
@@ -178,7 +201,7 @@ button:not(:disabled),a{cursor:pointer}
 <p id="ingTxt">Escribe el código que te dio el administrador. Solo se pide una vez en este celular y se necesita internet.</p>
 <input id="codigo" type="password" autocomplete="off" placeholder="Código de acceso">
 <button class="go" id="btnIng" onclick="entrar()">Entrar</button><div class="err" id="ingErr"></div></div></div>
-<div class="modal" id="modalErr"><div class="box"><h3 class="mal" id="eTit"></h3><p id="eTxt"></p><button onclick="$('modalErr').style.display='none'">Entendido</button></div></div>
+<div class="modal" id="modalErr"><div class="box"><h3 class="mal" id="eTit"></h3><p id="eTxt"></p><button onclick="cerrarModal('modalErr')">Entendido</button></div></div>
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
@@ -200,7 +223,10 @@ const svg=(d,w)=>`<svg class="i" viewBox="0 0 24 24" fill="none" stroke="current
 const IC={ok:svg('<path d="M5 12l5 5L20 7"/>',3),al:svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 17h.01"/>'),
  sync:svg('<path d="M20 12a8 8 0 01-14 5M4 12a8 8 0 0114-5M18 3v4h-4M6 21v-4h4"/>',2.4),
  off:svg('<path d="M3 3l18 18M8.5 16.5a5 5 0 017 0M5 13a10 10 0 014-2.5M19 13a10 10 0 00-3-2M12 20h.01"/>',2.4)};
-function aviso(tit,txt){$('eTit').textContent=tit;$('eTxt').textContent=txt;$('modalErr').style.display='flex';}
+const SUAVE=matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
+function abrirModal(id){const m=$(id);clearTimeout(m.t);m.classList.remove('saliendo');m.style.display='flex';}
+function cerrarModal(id){const m=$(id);if(m.style.display!=='flex'||m.classList.contains('saliendo'))return;m.classList.add('saliendo');m.t=setTimeout(()=>{m.style.display='none';m.classList.remove('saliendo');},150);}
+function aviso(tit,txt){$('eTit').textContent=tit;$('eTxt').textContent=txt;abrirModal('modalErr');}
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),3500);}
 
 /* ---------- Cola local (IndexedDB): las rondas esperan aquí hasta enviarse ---------- */
@@ -229,10 +255,10 @@ async function api(accion,datos,ms){
  return j.data;}
 
 /* ---------- Acceso ---------- */
-function pedirCodigo(msg){$('ingErr').textContent=msg||'';$('codigo').value='';$('ingreso').style.display='flex';}
+function pedirCodigo(msg){$('ingErr').textContent=msg||'';$('codigo').value='';abrirModal('ingreso');}
 async function entrar(){const c=$('codigo').value.trim();if(!c)return;const b=$('btnIng');b.disabled=true;b.textContent='Verificando…';$('ingErr').textContent='';
  const previo=ls.get('codigo','');ls.set('codigo',c);
- try{const d=await api('config',null,30000);cfg=d;ls.set('cfg',d);$('ingreso').style.display='none';iniciar();}
+ try{const d=await api('config',null,30000);cfg=d;ls.set('cfg',d);cerrarModal('ingreso');iniciar();}
  catch(e){ls.set('codigo',previo);$('ingErr').textContent=e.red?'No hay conexión. La primera vez se necesita internet.':e.message;}
  finally{b.disabled=false;b.textContent='Entrar';}}
 
@@ -259,8 +285,8 @@ function addItem(quieto){const d=document.createElement('div');d.className='card
  <div class="f"><label>Ubicación del cilindro<select class="ubic" onchange="ubicOtra(this)" style="margin-top:6px">${opts(UBIC)}</select></label>
  <input class="ubicOtra otro" autocomplete="off" placeholder="Escribe la ubicación" aria-label="Otra ubicación"></div>
  <div class="f"><label>Observación<textarea class="obs" style="margin-top:6px"></textarea></label></div></div>`;
- $('lista').appendChild(d);cerrarCompletos(d);num();if(!quieto)d.scrollIntoView({behavior:'smooth',block:'start'});guardarBorrador();actualizar();return d;}
-function delItem(b){if(document.querySelectorAll('.item').length>1){b.closest('.item').remove();num();guardarBorrador();actualizar();}}
+ $('lista').appendChild(d);cerrarCompletos(d);num();if(!quieto)d.scrollIntoView({behavior:SUAVE,block:'start'});guardarBorrador();actualizar();return d;}
+function delItem(b){const it=b.closest('.item');if(it.classList.contains('saliendo')||document.querySelectorAll('.item:not(.saliendo)').length<2)return;it.classList.add('saliendo');setTimeout(()=>{it.remove();num();guardarBorrador();actualizar();},150);}
 function num(){document.querySelectorAll('.item').forEach((e,i)=>{e.querySelector('.num').textContent='Cilindro '+(i+1);if(e.classList.contains('cerrado'))pintaResu(e,i+1);});}
 function setGas(e,v){e.querySelector('.gas').value=GASES.includes(v)?v:'';const g=e.querySelector('.gas').value;
  e.querySelectorAll('.gasC .chip').forEach(c=>{const on=c.dataset.v===g;c.classList.toggle('on',on);c.setAttribute('aria-pressed',on);});
@@ -273,7 +299,7 @@ function pintaResu(e,n){const q=x=>e.querySelector(x).value.trim(),u=q('.ubic');
  e.querySelector('.rt b').textContent=n+' · '+q('.gas')+' · '+q('.serial');
  e.querySelector('.rt small').textContent=q('.presion')+' '+unidadDe(q('.gas'))+' · '+(u==='Otra'?q('.ubicOtra'):u)+(q('.obs')?' · con observación':'');}
 function cerrarCompletos(menos){document.querySelectorAll('.item').forEach((e,i)=>{if(e!==menos&&completo(e)){pintaResu(e,i+1);e.classList.add('cerrado');}});}
-function abrir(b){const e=b.closest('.item');cerrarCompletos(e);e.classList.remove('cerrado');e.scrollIntoView({behavior:'smooth',block:'start'});}
+function abrir(b){const e=b.closest('.item');cerrarCompletos(e);e.classList.remove('cerrado');e.scrollIntoView({behavior:SUAVE,block:'start'});}
 
 /* ---------- Lo que falta: se muestra junto al campo y sobre el botón ---------- */
 let intentado=false;
@@ -357,7 +383,7 @@ function ver(v){$('vNueva').style.display=v==='N'?'block':'none';$('vHist').styl
 /* ---------- Registrar: primero se guarda en el celular, luego se envía ---------- */
 async function registrar(){
  intentado=true;const F=actualizar(),pri=F.find(x=>x.el);
- if(F.length){if(pri){const it=pri.el.closest('.item');if(it)it.classList.remove('cerrado');pri.el.scrollIntoView({behavior:'smooth',block:'center'});}
+ if(F.length){if(pri){const it=pri.el.closest('.item');if(it)it.classList.remove('cerrado');pri.el.scrollIntoView({behavior:SUAVE,block:'center'});}
   toast('Completa lo marcado en rojo para registrar');return;}
  const sede=$('sede').value,lugar=$('lugar').value.trim();
  const items=[...document.querySelectorAll('.item')].map(e=>{const u=e.querySelector('.ubic').value;
@@ -385,8 +411,8 @@ async function modal(r,rec){modalId=rec.id;const t=$('mTit'),x=$('mTxt'),j=$('mJ
  else if(r.error){tit(IC.al,'Ronda guardada, pero el servidor la rechazó');t.className='mal';x.textContent=r.error+' La ronda sigue guardada en este celular; avísale al administrador.';}
  else{tit(IC.ok,'Ronda guardada en el celular');t.className='aviso';x.textContent='Aún no se pudo enviar (sin conexión o señal débil). Se enviará sola cuando haya internet. No borres los datos de la app hasta que desaparezca el aviso de pendientes.';}
  const d=$('mDown');d.href=rec.imagen;d.download='Ronda_'+rec.sede+'_'+rec.id+'.jpg';
- $('modal').style.display='flex';}
-function nueva(){$('modal').style.display='none';ls.del('borrador');formListo=false;intentado=false;$('lista').innerHTML='';$('lugar').value='';$('recibe').value='';
+ abrirModal('modal');}
+function nueva(){cerrarModal('modal');ls.del('borrador');formListo=false;intentado=false;$('lista').innerHTML='';$('lugar').value='';$('recibe').value='';
  $('realiza').value='';onRealiza();pads.c1.borrar();pads.c2.borrar();addItem(true);formListo=true;guardarYa();actualizar();window.scrollTo(0,0);}
 
 /* ---------- Sincronización ---------- */

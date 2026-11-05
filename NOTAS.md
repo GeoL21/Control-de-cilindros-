@@ -16,8 +16,11 @@ Sedes: Barranquilla y Baranoa.
 
 ## Reglas que no se cambian
 - Debe funcionar sin señal (hay áreas sin WiFi ni datos) y subir los registros al volver la conexión.
-- La pantalla actual se mantiene: es más informativa y dice qué pasos faltan.
-  Se probó un rediseño (noviembre de 2026) y se descartó.
+- El formulario se mantiene: es más informativo y dice qué pasos faltan.
+  Se probó un rediseño del formulario (noviembre de 2026) y se descartó.
+- Marco modernizado y aprobado (4 nov 2026), igual que Tanques e Inventario: encabezado blanco sin franja vino,
+  logo en el menú lateral en PC, estado como etiqueta, barra de avance "X de N pasos" y animaciones con propósito.
+- Datos del teléfono con prefijo `cil:` (las apps de geol21.github.io comparten almacenamiento); las claves viejas se migran solas.
 - El reporte JPG debe quedar igual.
 - Todo en español, con el logo y los colores de la clínica (vino tinto). Letra: Plus Jakarta Sans.
 - Nada en Play Store; se distribuye solo por GitHub.

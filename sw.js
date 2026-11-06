@@ -1,6 +1,6 @@
 // Service worker: deja la app abrir sin internet.
 // Si cambias los archivos de la lista, sube el número de versión (v1 -> v2).
-const VERSION = 'cilindros-v7';
+const VERSION = 'cilindros-v8';
 const ARCHIVOS = ['./', './index.html', './config.js', './manifest.webmanifest', './logo.jpg', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
 
 self.addEventListener('install', e => {
@@ -9,7 +9,7 @@ self.addEventListener('install', e => {
 
 self.addEventListener('activate', e => {
   e.waitUntil(
-    caches.keys().then(ks => Promise.all(ks.filter(k => k !== VERSION).map(k => caches.delete(k))))
+    /* Solo borra cachés de esta app: el sitio geol21.github.io lo comparten varias PWA */ caches.keys().then(ks => Promise.all(ks.filter(k => k.indexOf('cilindros-') === 0 && k !== VERSION).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });

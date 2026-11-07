@@ -675,7 +675,7 @@ function pintarLista(){const L=FV.lista,yo=L.yo,admin=yo.rol==='Administrador',s
   const num=String(f.whatsapp||'').replace(/\D/g,''),wa=num?'https://wa.me/'+(num.length===10?'57'+num:num):'';
   return `<div class="fir"${f.estado==='De baja'?' style="opacity:.55"':''}><div class="av">${esc(iniciales(f.nombre))}</div><div class="t"><b>${esc(f.nombre)}</b><small>${esc(f.rol!=='Firmante'?f.rol:f.cargo||'Firmante')}${f.rol!=='Firmante'&&f.cargo?' · '+esc(f.cargo):''}${num?' · '+esc(tel(num)):''}</small>${est}</div>
    <div class="ac">${wa&&f.estado!=='De baja'?`<a class="w" href="${esc(wa)}" target="_blank" rel="noopener" aria-label="Escribir por WhatsApp a ${esc(f.nombre)}">${WA_I}</a>`:''}
-   ${f.estado==='Invitado'?`<button aria-label="Reenviar invitación a ${esc(f.nombre)}" onclick="reinvitar('${esc(f.id)}',this)">${IC.sync}</button>`:''}
+   ${f.estado!=='De baja'?`<button aria-label="${f.estado==='Invitado'?'Reenviar invitación a ':'Registrar otro celular de '}${esc(f.nombre)}" title="${f.estado==='Invitado'?'Reenviar invitación':'Registrar otro celular'}" onclick="reinvitar('${esc(f.id)}',this)">${f.estado==='Invitado'?IC.sync:svg('<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 17h2"/>',2)}</button>`:''}
    ${admin&&f.estado!=='De baja'&&f.id!==yo.id?`<button aria-label="Dar de baja a ${esc(f.nombre)}" onclick="darBaja('${esc(f.id)}','${esc(f.nombre)}',this)" style="color:var(--mal)">${svg('<path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>',2)}</button>`:''}</div></div>`;};
  fcard(`${sedes.length>1?`<div class="seg">${sedes.map(s=>`<button type="button" class="${s===FV.sede?'on':''}" onclick="FV.sede='${esc(s)}';pintarLista()">${esc(s)} · ${cuenta(s)}</button>`).join('')}</div>`:''}
   <div class="card"><h2>Firmantes de ${esc(FV.sede)}<span class="tag hu">${esc(yo.rol)}</span></h2>${de.length?de.map(fila).join(''):'<div class="vacio">Aún no hay firmantes en esta sede.</div>'}</div>
@@ -697,24 +697,29 @@ function pintarInvitar(){const yo=(sesionVigente()||{}).yo||yoDisp(),admin=yo.ro
   try{const r=await conSesion(t=>api('invitar',Object.assign({sesion:t},d)));FV.res=Object.assign({nombre:d.nombre},r);FV.vista='invitado';FV.lista=null;pintarFirm();}
   catch(e){b.disabled=false;$('iErr').textContent=Huella.error(e);}};}
 function pintarInvitado(){const r=FV.res;
- fcard(`<div class="card" style="text-align:center"><h2 style="justify-content:center">${IC.ok}Invitación lista</h2><p class="nota">Envíale la invitación a <b>${esc(r.nombre)}</b>. Cuando registre su huella aparecerá como activo en la lista y en "Quien recibe".</p>
+ fcard(`<div class="card" style="text-align:center"><h2 style="justify-content:center">${IC.ok}Invitación lista</h2><p class="nota">${r.otro?`Envíale el enlace a <b>${esc(r.nombre)}</b> para que registre su huella en su otro celular. El celular anterior sigue sirviendo.`:`Envíale la invitación a <b>${esc(r.nombre)}</b>. Cuando registre su huella aparecerá como activo en la lista y en "Quien recibe".`}</p>
   ${r.wa?`<a class="fbtn wa" href="${esc(r.wa)}" target="_blank" rel="noopener" style="text-decoration:none">${WA_I}Enviar invitación por WhatsApp</a>`:''}
   <button class="fbtn sec" onclick="copiarEnlace('${esc(r.enlace)}')">Copiar enlace</button><button class="fbtn sec" onclick="FV.vista='lista';pintarFirm()">Volver a la lista</button></div>`);}
 async function reinvitar(id,btn){btn.disabled=true;try{const r=await conSesion(t=>api('reinvitar',{sesion:t,id}));const f=FV.lista.lista.find(x=>x.id===id);
- FV.res=Object.assign({nombre:f?f.nombre:''},r);FV.vista='invitado';pintarFirm();}catch(e){btn.disabled=false;toast(Huella.error(e));}}
+ FV.res=Object.assign({nombre:f?f.nombre:'',otro:f&&f.estado==='Activo'},r);FV.vista='invitado';pintarFirm();}catch(e){btn.disabled=false;toast(Huella.error(e));}}
 async function darBaja(id,nombre,btn){if(!confirm('¿Dar de baja a '+nombre+'? Ya no podrá firmar con su huella.'))return;btn.disabled=true;
  try{await conSesion(t=>api('baja',{sesion:t,id}));toast(nombre+' quedó de baja.');pintarFirm();}catch(e){btn.disabled=false;toast(Huella.error(e));}}
 function pintarActivar(y){
  fcard(`<div class="card"><h2>Firmas con huella</h2>
   ${y?`<p class="nota" style="margin-top:0">Este celular tiene la huella de <b>${esc(y.nombre)}</b> (${esc(y.rol)}).</p>`:''}
   <p class="nota" style="margin-top:0">Las personas firman las rondas con su huella, cada una desde su celular. Para registrarse necesitan una invitación del administrador o de un coordinador.</p>
-  <p class="nota">Si eres coordinador, abre la invitación que te llegó por WhatsApp.</p></div>
+  <p class="nota">Si eres coordinador, abre la invitación que te llegó por WhatsApp.</p>
+  ${y?'':`<button class="fbtn sec" id="yaReg">${HU_I}Ya registré mi huella en este celular</button><p class="nota">Úsalo si abriste la invitación en otro navegador y la app no te reconoce.</p><div class="ferr" id="yErr" role="alert"></div>`}</div>
   <div class="card"><h2>Activar administrador</h2><p class="nota" style="margin-top:0">Solo para el administrador, una vez en cada equipo. Pide el código de administrador.</p>
   <label for="aNom">Tu nombre completo</label><input id="aNom" autocomplete="off" value="${esc(y&&y.rol==='Administrador'?y.nombre:'')}">
   <label for="aCar">Cargo</label><input id="aCar" autocomplete="off" placeholder="Ej.: Técnico de gases medicinales">
   <label for="aTel">Tu número de WhatsApp</label><input id="aTel" inputmode="tel" autocomplete="off">
   <label for="aCod">Código de administrador</label><input id="aCod" type="password" autocomplete="off">
   <button class="fbtn" id="aGo">${HU_I}Activar con mi huella</button><div class="ferr" id="aErr" role="alert"></div></div>`);
+ if($('yaReg'))$('yaReg').onclick=async()=>{const b=$('yaReg');b.disabled=true;$('yErr').textContent='Pon tu dedo cuando el celular lo pida…';
+  try{const reto=await api('huellaReto',{para:'identificar'});const f=await Huella.firmar(reto,[]);const r=await api('identificar',f);
+   ls.set('yo',Object.assign({},r.yo,{llaves:[r.credId]}));pintarNavFirm();onSede(true);toast('Listo, '+r.yo.nombre.split(' ')[0]+': la app ya te reconoce.');pintarFirm();}
+  catch(e){b.disabled=false;$('yErr').textContent=/no está registrada/.test(e.message||'')?'Este celular no tiene una huella registrada para estas firmas. Pide una invitación.':Huella.error(e);}};
  $('aGo').onclick=async()=>{const b=$('aGo'),nom=titulo($('aNom').value),cod=$('aCod').value.trim();
   if(!nom||!cod){$('aErr').textContent='Escribe tu nombre y el código.';return;}b.disabled=true;$('aErr').textContent='Pon tu dedo cuando el celular lo pida…';
   try{const reto=await api('huellaReto',{para:'registro'});const c=await Huella.crear(reto,nom);

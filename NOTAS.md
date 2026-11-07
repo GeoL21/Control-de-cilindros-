@@ -10,7 +10,12 @@ Sedes: Barranquilla y Baranoa.
 - Datos: hoja de Google en la cuenta cilindrocrc@gmail.com.
 - Servidor: implementación de Apps Script de esa hoja. Su código NO está en este repo.
 - La URL del servidor está en `config.js` (`window.API_URL`).
-- La PWA llama al servidor por POST con código de acceso (acciones: `config`, `historial`, `registrar`).
+- La PWA llama al servidor por POST con código de acceso (acciones: `config`, `historial`, `registrar`,
+  y las de firmas: `huellaReto`, `adminActivar`, `sesion`, `firmantes`, `invitar`, `reinvitar`, `baja`, `reenviarFirma`).
+- La página `firmar.html` usa acciones sin código de acceso, protegidas por enlaces de un solo uso
+  (`invInfo`, `invReto`, `invRegistrar`, `firmaInfo`, `firmaReto`, `firmaFirmar`, `firmaJpg`, `firmaNoCoincide`).
+- El servidor tiene tres archivos: Code.gs, Firmas.gs y Huella.gs. Los códigos (CODIGO_ACCESO, CODIGO_ADMIN)
+  van en las Propiedades del script, nunca en el código.
   Esa implementación debe seguir activa.
 - El link viejo de Apps Script solo muestra el aviso "Esta versión ya no se usa" con un botón a esta PWA.
 
@@ -25,8 +30,16 @@ Sedes: Barranquilla y Baranoa.
 - Todo en español, con el logo y los colores de la clínica (vino tinto). Letra: Plus Jakarta Sans.
 - Nada en Play Store; se distribuye solo por GitHub.
 
-## Pendiente
-- Firmas seguras con huella (WebAuthn), de quien hace la ronda y de quien recibe, cada uno desde su teléfono.
+## Firmas con huella (nov 2026)
+- Cada persona firma desde su propio celular (WebAuthn/llaves de acceso). La huella nunca sale del teléfono.
+- Roles: Administrador (Jorge), Coordinador (invita en su sede; Kevin en Baranoa) y Firmante. Pestaña "Firmantes".
+- Quien recibe registrado: firma después desde un enlace por WhatsApp (sirve con guantes estériles).
+  No registrado u "Otra persona": firma con el dedo como siempre, y se le puede invitar.
+- La huella firma un resumen SHA-256 de la ronda; si alguien cambia la ronda, deja de coincidir.
+  Evidencia de cada firma en la pestaña "Firmas"; código de verificación en el JPG.
+- El JPG lo dibuja `reporte.js` (lo usan la app y `firmar.html`); al firmar con huella se vuelve a generar.
+- Validez: firma electrónica (Ley 527 de 1999, Decreto 2364 de 2012). Recomendado: formato aprobado por calidad
+  y acuerdo firmado una vez por cada firmante.
 
 ## Cómo trabajar aquí
 - Preguntar antes de cambiar algo y mostrar un bosquejo para aprobar.

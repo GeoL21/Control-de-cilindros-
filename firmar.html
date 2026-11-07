@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Firmar ronda · Control de cilindros</title>
+<meta name="theme-color" content="#FFFFFF">
+<meta name="robots" content="noindex">
+<link rel="icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ease-out:cubic-bezier(0.23,1,0.32,1);--vino:#6A1B3A;--rosa:#F7F1F3;--borde:#DCC8D0;--txt:#26181D;--sec:#6d5a64;--ok:#2E7D5B;--okf:#E4F3EC;--aviso:#8A5200;--avisof:#FFF3DC;--mal:#B3261E;--malf:#FCEBEA}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:#FBF8F9;color:var(--txt)}
+header{background:#fff;border-bottom:1px solid #EFE4E8;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;display:flex;gap:12px;align-items:center}
+header img{height:44px;width:44px;border-radius:50%;border:2px solid var(--vino);padding:1px}
+header h1{font-size:17px;margin:0;font-weight:800;color:var(--vino)}header p{margin:2px 0 0;font-size:12.5px;color:var(--sec)}
+main{max-width:560px;margin:0 auto;padding:14px 14px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px}
+.card{background:#fff;border:1px solid var(--borde);border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(106,27,58,.06)}
+.card h2{margin:0 0 4px;font-size:16px;color:var(--vino)}
+.k{font-size:13.5px;color:var(--sec);line-height:1.45}
+.cil{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #F1E8EC;font-size:14.5px}.cil:last-child{border:0}
+.cil small{display:block;color:var(--sec);font-size:12.5px;margin-top:2px}.cil .d{text-align:right;font-weight:700;color:var(--ok);white-space:nowrap}
+.cil .o{display:block;color:var(--aviso);font-weight:600;font-size:12.5px;margin-top:3px}
+.btn{display:flex;gap:10px;align-items:center;justify-content:center;width:100%;min-height:54px;border-radius:14px;border:0;font:inherit;font-weight:800;font-size:16px;background:var(--vino);color:#fff;transition:transform 150ms var(--ease-out)}
+.btn:active:not(:disabled){transform:scale(.98)}.btn:disabled{opacity:.6}.btn svg{width:24px;height:24px}
+.btn.sec{background:#fff;color:var(--vino);border:1.5px solid var(--vino)}
+.link{background:none;border:0;color:var(--mal);font:inherit;font-weight:700;font-size:14.5px;padding:12px;min-height:44px;width:100%}
+.centro{text-align:center}
+.ic{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;margin:6px auto 10px}.ic svg{width:50px;height:50px}
+.ic.ok{background:var(--okf);color:var(--ok)}.ic.vino{background:var(--rosa);color:var(--vino)}.ic.mal{background:var(--malf);color:var(--mal)}
+.ic.late{animation:late 1.8s ease-in-out infinite}@keyframes late{50%{box-shadow:0 0 0 12px rgba(106,27,58,.1)}}
+.dato{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #F1E8EC;font-size:14px}.dato:last-child{border:0}.dato span{color:var(--sec)}
+.err{color:var(--mal);font-weight:600;font-size:14px;text-align:center;min-height:20px}
+textarea{width:100%;font:inherit;font-size:16px;padding:12px;border:1.5px solid var(--borde);border-radius:12px;min-height:90px;resize:vertical;outline:none}
+textarea:focus{border-color:var(--vino);box-shadow:0 0 0 3px rgba(106,27,58,.12)}
+.spin{width:30px;height:30px;border-radius:50%;border:3px solid #EADDE3;border-top-color:var(--vino);animation:gira .8s linear infinite;margin:20px auto}
+@keyframes gira{to{transform:rotate(360deg)}}
+.vista{animation:entra 220ms var(--ease-out)}@keyframes entra{from{opacity:0;transform:translateY(6px)}}
+@media (prefers-reduced-motion:reduce){.ic.late,.vista,.spin{animation:none}.btn:active:not(:disabled){transform:none}}
+</style></head><body>
+<header><img src="logo.jpg" alt=""><div><h1 id="titulo">Firmar ronda</h1><p>Clínica Reina Catalina · Control de cilindros</p></div></header>
+<main id="main" aria-live="polite"><div class="spin" role="status" aria-label="Cargando"></div></main>
+<script src="config.js"></script>
+<script src="reporte.js"></script>
+<script src="firma.js"></script>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const unidadDe=g=>g==='Dioxicarbomed'?'MPa':'PSI';
+const ls={get(k,d){try{const v=localStorage.getItem('cil:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('cil:'+k,JSON.stringify(v))}catch(e){}}};
+const HUELLA='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M18.9 7a8 8 0 0 1 1.1 4v1a10 10 0 0 0 2 6"/><path d="M4 11a8 8 0 0 1 12-6.9"/><path d="M8 11a4 4 0 0 1 8 0v1a10 10 0 0 0 2 6"/><path d="M12 11v2a14 14 0 0 0 2.5 8"/><path d="M8 15a18 18 0 0 0 1.8 6"/><path d="M4.9 19a22 22 0 0 1-.9-7v-1"/></svg>';
+const OK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>';
+const MAL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>';
+const q=new URLSearchParams(location.search),K=q.get('k'),INV=q.get('inv');
+
+async function api(accion,datos){
+ const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),60000);let txt;
+ try{const r=await fetch(window.API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({accion,datos}),signal:ctl.signal,redirect:'follow'});txt=await r.text();}
+ catch(e){throw new Error('Sin conexión. Revisa tu internet e intenta de nuevo.');}finally{clearTimeout(t);}
+ let j;try{j=JSON.parse(txt);}catch(e){throw new Error('El servidor no respondió bien. Intenta de nuevo.');}
+ if(!j.ok)throw new Error(j.error||'Error del servidor.');return j.data;}
+
+function pintar(h){$('main').innerHTML='<div class="vista" style="display:flex;flex-direction:column;gap:12px">'+h+'</div>';}
+function pintarError(t,txt){pintar(`<div class="card centro"><div class="ic mal">${MAL}</div><h2>${esc(t)}</h2><p class="k">${esc(txt)}</p></div>`);}
+
+/* ---------- Invitación: registrar la huella ---------- */
+async function invitacion(){
+ $('titulo').textContent='Registrar mi huella';document.title='Registrar huella · Control de cilindros';
+ let f;try{f=await api('invInfo',{inv:INV});}catch(e){return pintarError('No se pudo abrir la invitación',e.message);}
+ const lugar=f.sede==='Todas'?'Barranquilla y Baranoa':f.sede;
+ pintar(`<div class="card centro"><div class="ic vino late">${HUELLA}</div><h2>Hola, ${esc(f.nombre.split(' ')[0])}</h2>
+  <p class="k">Te invitaron a firmar las rondas de cilindros de gas de <b>${esc(lugar)}</b>${f.cargo?' como <b>'+esc(f.cargo)+'</b>':''}${f.rol==='Coordinador'?' y a invitar a otras personas de tu sede':''}.</p>
+  <p class="k">Tu celular va a pedir tu huella (o tu cara o PIN) una sola vez. <b>Tu huella no sale de tu celular</b>: la clínica solo recibe una llave digital.</p></div>
+  <button class="btn" id="go">${HUELLA}Registrar mi huella</button><div class="err" id="err" role="alert"></div>
+  <p class="k centro">Al registrarte aceptas usar tu huella en este celular como firma electrónica de las rondas de cilindros (Ley 527 de 1999), y que tu número de WhatsApp se use solo para enviarte rondas a firmar.</p>`);
+ $('go').onclick=async()=>{const b=$('go');b.disabled=true;$('err').textContent='Pon tu dedo cuando el celular lo pida…';
+  try{const reto=await api('invReto',{inv:INV});const c=await Huella.crear(reto,f.nombre);
+   const r=await api('invRegistrar',Object.assign({inv:INV},c));
+   const yo=ls.get('yo',null),llaves=yo&&yo.id===r.yo.id?yo.llaves||[]:[];if(llaves.indexOf(r.credId)<0)llaves.push(r.credId);
+   ls.set('yo',Object.assign({},r.yo,{llaves}));
+   history.replaceState(null,'',location.pathname);
+   pintar(`<div class="card centro"><div class="ic ok">${OK}</div><h2>¡Listo, ${esc(r.yo.nombre.split(' ')[0])}!</h2>
+    <p class="k">Tu huella quedó registrada en este celular. Cuando te entreguen una ronda te llegará un enlace por WhatsApp: lo tocas y firmas con tu dedo.</p></div>
+    ${r.yo.rol!=='Firmante'?`<a class="btn" href="./" style="text-decoration:none">Abrir Control de cilindros</a><p class="k centro">Como ${r.yo.rol==='Coordinador'?'coordinador':'administrador'}, en la app verás la pestaña <b>Firmantes</b> para invitar a otras personas.</p>`:'<p class="k centro">Ya puedes cerrar esta página.</p>'}`);
+  }catch(e){b.disabled=false;$('err').textContent=Huella.error(e);}};
+}
+
+/* ---------- Enlace de firma de una ronda ---------- */
+let INFO=null;
+async function firma(){
+ try{INFO=await api('firmaInfo',{k:K});}catch(e){return pintarError('No se puede firmar',e.message);}
+ const r=INFO.ronda,f=INFO.firmante;document.title='Firmar ronda · '+r.lugar;
+ const cil=r.items.map(i=>`<div class="cil"><div>${esc(i.gas)} · ${esc(i.serial)}<small>${esc(i.ubicacion)}</small>${i.obs?`<span class="o">${esc(i.obs)}</span>`:''}</div><div class="d">${esc(i.presion)}</div></div>`).join('');
+ pintar(`<div class="card"><h2>${esc(r.lugar)} · ${esc(r.sede)}</h2><p class="k" style="margin:0 0 6px">${esc(r.fecha)} · ${esc(r.hora)} · ${INFO.rol==='recibe'?'Entregó: <b>'+esc(r.realiza)+'</b>':'Recibió: <b>'+esc(r.recibe)+'</b>'}</p>${cil}
+  <p class="k" style="margin:10px 0 0">Total: <b>${r.items.length} ${r.items.length===1?'cilindro':'cilindros'}</b> · Código ${esc(INFO.codigo)}</p></div>
+  <div class="card centro" style="padding:12px"><p class="k" style="margin:0">Firmas como <b>${esc(f.nombre)}</b> · ${esc(INFO.rolTxt)}.<br>${INFO.rol==='recibe'?'Confirmas que recibiste lo que aparece arriba.':'Confirmas que hiciste esta ronda.'}</p></div>
+  <button class="btn" id="go">${HUELLA}Firmar con huella</button><div class="err" id="err" role="alert"></div>
+  <button class="link" id="no">No coincide con lo que ${INFO.rol==='recibe'?'recibí':'hice'}</button>`);
+ $('go').onclick=firmarYa;$('no').onclick=noCoincide;
+}
+async function firmarYa(){const b=$('go');b.disabled=true;$('err').textContent='';
+ try{const {out}=await firmarRonda(api,K,(p)=>{$('err').style.color='var(--sec)';$('err').textContent=p==='huella'?'Pon tu dedo cuando el celular lo pida…':'Guardando la firma…';});
+  history.replaceState(null,'',location.pathname);
+  pintar(`<div class="card centro"><div class="ic ok">${OK}</div><h2>Ronda firmada</h2><p class="k">Gracias, ${esc(out.nombre.split(' ')[0])}. Quedó registrada tu firma con huella.</p></div>
+   <div class="card"><div class="dato"><span>Ronda</span><b>${esc(INFO.ronda.lugar)} · ${esc(INFO.ronda.fecha)}</b></div><div class="dato"><span>Entregada</span><b>${esc(INFO.ronda.hora)}</b></div>
+   <div class="dato"><span>Firmada con huella</span><b>${esc(out.hora)}</b></div><div class="dato"><span>Por</span><b>${esc(out.nombre)}</b></div><div class="dato"><span>Código de verificación</span><b>${esc(out.codigo)}</b></div></div>
+   ${out.url?`<a class="btn sec" href="${esc(out.url)}" target="_blank" rel="noopener" style="text-decoration:none">Ver el reporte JPG</a>`:''}<p class="k centro">Ya puedes cerrar esta página.</p>`);
+ }catch(e){b.disabled=false;$('err').style.color='';$('err').textContent=Huella.error(e);}}
+function noCoincide(){
+ pintar(`<div class="card"><h2>¿Qué no coincide?</h2><p class="k">Escribe qué recibiste distinto (por ejemplo, un cilindro que no llegó o una presión diferente). Quedará anotado en la ronda en lugar de tu firma.</p>
+  <textarea id="mot" maxlength="300" aria-label="Qué no coincide"></textarea></div>
+  <button class="btn" id="env" style="background:var(--mal)">Enviar</button><button class="btn sec" id="vol">Volver</button><div class="err" id="err" role="alert"></div>`);
+ $('vol').onclick=firma;
+ $('env').onclick=async()=>{const m=$('mot').value.trim();if(!m){$('err').textContent='Escribe qué no coincide.';return;}const b=$('env');b.disabled=true;
+  try{await api('firmaNoCoincide',{k:K,motivo:m});history.replaceState(null,'',location.pathname);
+   pintar(`<div class="card centro"><div class="ic mal">${MAL}</div><h2>Quedó anotado</h2><p class="k">Se registró que no coincide: “${esc(m)}”. Quien hizo la ronda y el administrador lo verán en el historial.</p></div>`);}
+  catch(e){b.disabled=false;$('err').textContent=e.message;}};}
+
+if(!window.API_URL)pintarError('Falta configurar','Falta la dirección del servidor.');
+else if(INV)invitacion();
+else if(K)firma();
+else pintarError('Enlace incompleto','Abre el enlace completo que te llegó por WhatsApp.');
+</script></body></html>

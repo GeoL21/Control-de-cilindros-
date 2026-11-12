@@ -527,12 +527,19 @@ function addItem(quieto){const d=document.createElement('div');d.className='card
  $('lista').appendChild(d);pintaSug(d);cerrarCompletos(d);num();if(!quieto)d.scrollIntoView({behavior:SUAVE,block:'start'});guardarBorrador();actualizar();return d;}
 /* Serial siempre en mayúsculas; observaciones sugeridas (las más usadas en este teléfono) */
 const OBS_K='obsUsadas',quitaTildes=t=>t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-function obsUsadas(){const m=ls.get(OBS_K,{});return Object.keys(m).sort((a,b)=>m[b]-m[a]);}
-function recordarObs(items){const m=ls.get(OBS_K,{});items.forEach(i=>{const t=(i.obs||'').replace(/\s+/g,' ').trim();if(t)m[t]=(m[t]||0)+1;});
- const top=Object.keys(m).sort((a,b)=>m[b]-m[a]).slice(0,50),n={};top.forEach(k=>n[k]=m[k]);ls.set(OBS_K,n);}
+/* Observaciones iguales salvo tildes, mayúsculas, espacios o un punto final cuentan como una sola.
+   Se muestra la forma más usada (si empatan, la que lleva tildes). */
+const claveObs=t=>quitaTildes(String(t||'')).replace(/[.,;:]+$/,'').replace(/\s+/g,' ').trim();
+function unirObs(m){const g={};Object.keys(m).forEach(t=>{const k=claveObs(t);if(!k)return;const x=g[k]=g[k]||{n:0,t:t,c:-1};x.n+=m[t];
+  const tilde=/[\u00C0-\u017F]/.test(t)?1:0,mejor=m[t]>x.c||(m[t]===x.c&&tilde>(/[\u00C0-\u017F]/.test(x.t)?1:0));if(mejor){x.t=t;x.c=m[t];}});
+ const n={};Object.values(g).sort((a,b)=>b.n-a.n).slice(0,50).forEach(x=>n[x.t]=x.n);return n;}
+function obsUsadas(){const m=unirObs(ls.get(OBS_K,{}));return Object.keys(m).sort((a,b)=>m[b]-m[a]);}
+/* Si escriben una observación que ya existe con otra tilde o mayúscula, se guarda como la conocida */
+function obsCanon(t){t=String(t||'').replace(/\s+/g,' ').trim();if(!t)return t;const k=claveObs(t);return obsUsadas().find(x=>claveObs(x)===k)||t;}
+function recordarObs(items){const m=unirObs(ls.get(OBS_K,{}));items.forEach(i=>{const t=obsCanon(i.obs);if(t)m[t]=(m[t]||0)+1;});ls.set(OBS_K,unirObs(m));}
 function pintaSug(e){const caja=e.querySelector('.sug');if(!caja)return;const esc=t=>t.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
  const v=e.querySelector('.obs').value.trim(),q=quitaTildes(v);
- const l=obsUsadas().filter(t=>t!==v&&(!q||quitaTildes(t).includes(q))).slice(0,6);
+ const l=obsUsadas().filter(t=>claveObs(t)!==claveObs(v)&&(!q||quitaTildes(t).includes(q))).slice(0,6);
  caja.innerHTML=l.map(t=>{let h=esc(t);if(q){const i=quitaTildes(t).indexOf(q);h=esc(t.slice(0,i))+'<b>'+esc(t.slice(i,i+q.length))+'</b>'+esc(t.slice(i+q.length));}
   return `<button type="button" class="chip" data-t="${esc(t)}" onclick="usarSug(this)">${h}</button>`;}).join('');}
 function usarSug(b){const e=b.closest('.item'),o=e.querySelector('.obs');o.value=b.dataset.t;pintaSug(e);guardarBorrador();actualizar();}
@@ -678,7 +685,7 @@ async function enviarRonda(opc){cerrarModal('confirmar');
  const sede=$('sede').value,lugar=lugarFinal(sede,$('lugar').value);
  const items=[...document.querySelectorAll('.item')].map(e=>{const u=e.querySelector('.ubic').value;
   return{gas:e.querySelector('.gas').value,serial:e.querySelector('.serial').value.trim().toUpperCase(),presion:e.querySelector('.presion').value.trim(),
-   ubicacion:u==='Otra'?e.querySelector('.ubicOtra').value.trim():u,obs:e.querySelector('.obs').value.trim()};});
+   ubicacion:u==='Otra'?e.querySelector('.ubicOtra').value.trim():u,obs:obsCanon(e.querySelector('.obs').value)};});
  const realiza=nombreRealiza(),recibe=recibeNombre(),y=yoDisp(),recF=recibeFirmante();
  const ini=opc.inicio||null,h1=!ini&&!!((huella1()||opc.despues)&&y),h2=!!(huella2()&&recF);
  const firmas={realiza:ini?{tipo:'inicio',fid:ini.fid,aserto:ini.aserto,inicio:ini.t,fin:Date.now()}:h1?{tipo:'huella',fid:y.id}:{tipo:'dedo'},recibe:h2?{tipo:'huella',fid:recF.id}:{tipo:'dedo'}};
@@ -884,7 +891,7 @@ function pintarActivar(y){
   catch(e){b.disabled=false;$('aErr').textContent=Huella.error(e);}};}
 
 /* ---------- Arranque ---------- */
-function iniciar(){pintarSedes();onSede();restaurar();lugarPorDefecto();estado();sincronizar();pintarNavFirm();pintarInicio();llenarRetos();
+function iniciar(){try{const m=ls.get(OBS_K,null);if(m)ls.set(OBS_K,unirObs(m));}catch(e){}pintarSedes();onSede();restaurar();lugarPorDefecto();estado();sincronizar();pintarNavFirm();pintarInicio();llenarRetos();
  api('config',null,20000).then(d=>{cfg=d;ls.set('cfg',d);pintarSedes();onSede(true);guardarBorrador();actualizar();}).catch(e=>{if(e.auth)pedirCodigo('El código ya no es válido. Escribe el código nuevo.');});}
 (async function(){
  const alFirmar=()=>{guardarBorrador();actualizar();};pad('c1',alFirmar);pad('c2',alFirmar);pintarSedes();

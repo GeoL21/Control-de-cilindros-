@@ -5,7 +5,8 @@
      { tipo:'pendiente' }                           falta firmar con huella
      { tipo:'nocoincide', nota }                    la persona dijo que no coincide
      { tipo:'vacia' }                               sin firma
-   D.codigo (opcional): código de verificación de la ronda. */
+   D.codigo (opcional): código de verificación de la ronda. Si está qrcode.js, se dibuja
+   también un QR que abre geol21.github.io/verificar.html con la ronda y el código. */
 (function () {
   const unidadDe = g => g === 'Dioxicarbomed' ? 'MPa' : 'PSI';
   let logoImg = null;
@@ -30,7 +31,8 @@
     const infoBottom = 375 + lugarL.length * 42, tableTop = infoBottom + 30, HEAD = 64;
     const sumRows = filas.reduce((a, f) => a + f.h, 0);
     const conCodigo = !!D.codigo;
-    const sigTop = tableTop + HEAD + sumRows + 110, H = sigTop + 440 + (conCodigo ? 40 : 0);
+    const conQR = conCodigo && typeof qrcode === 'function';
+    const sigTop = tableTop + HEAD + sumRows + 110, H = sigTop + 440 + (conQR ? 170 : conCodigo ? 40 : 0);
     const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d');
     x.fillStyle = '#fff'; x.fillRect(0, 0, W, H); x.textBaseline = 'top';
     const g = x.createLinearGradient(0, 0, W, 210); g.addColorStop(0, VINO); g.addColorStop(1, '#4E1229'); x.fillStyle = g; x.fillRect(0, 0, W, 210);
@@ -87,6 +89,13 @@
     x.textAlign = 'center'; x.font = '400 22px ' + F_; x.fillStyle = '#8a7680';
     if (conCodigo) { x.font = '700 24px ' + F_; x.fillStyle = '#26181D'; x.fillText('Código de verificación: ' + D.codigo, W / 2, H - 92); x.font = '400 22px ' + F_; x.fillStyle = '#8a7680'; }
     x.fillText('Clínica Reina Catalina · Control de cilindros de gas · ' + A.id, W / 2, H - 46);
+    // QR para verificar la ronda en geol21.github.io/verificar.html
+    if (conQR) { try { const q = qrcode(0, 'M'); q.addData('https://geol21.github.io/verificar.html?r=' + encodeURIComponent(A.id) + '&c=' + encodeURIComponent(D.codigo)); q.make();
+      const n = q.getModuleCount(), S = 160, cel = S / (n + 2), qx = W - M - S, qy = H - 12 - 24 - S;
+      x.fillStyle = '#fff'; x.fillRect(qx, qy, S, S); x.fillStyle = '#26181D';
+      for (let r = 0; r < n; r++) for (let k = 0; k < n; k++) if (q.isDark(r, k)) x.fillRect(Math.floor(qx + (k + 1) * cel), Math.floor(qy + (r + 1) * cel), Math.ceil(cel), Math.ceil(cel));
+      x.textAlign = 'right'; x.font = '600 18px ' + F_; x.fillStyle = '#8a7680'; x.fillText('Escanea para verificar', qx - 14, qy + S / 2 - 9); x.textAlign = 'center';
+    } catch (e) {} }
     x.fillStyle = VINO; x.fillRect(0, H - 12, W, 12);
     return c.toDataURL('image/jpeg', 0.93);
   };

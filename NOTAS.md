@@ -37,6 +37,8 @@ Sedes: Barranquilla y Baranoa.
   No registrado u "Otra persona": firma con el dedo como siempre, y se le puede invitar.
 - La huella firma un resumen SHA-256 de la ronda; si alguien cambia la ronda, deja de coincidir.
   Evidencia de cada firma en la pestaña "Firmas"; código de verificación en el JPG.
+- QR en el JPG (12 nov 2026): si la ronda tiene código, `reporte.js` dibuja abajo a la derecha un QR (qrcode.js, MIT) que abre
+  https://geol21.github.io/verificar.html?r=RONDA&c=CODIGO. Esa página (en el repo del portal) usa la acción `verificar` del servidor.
 - El JPG lo dibuja `reporte.js` (lo usan la app y `firmar.html`); al firmar con huella se vuelve a generar.
 - Firma al iniciar (12 nov 2026): quien tiene huella registrada toca "Iniciar ronda con huella"; su nombre
   se llena solo y al final confirma con "Estoy de acuerdo y registro" (resumen). La ronda llega firmada, sin

@@ -46,6 +46,11 @@ Sedes: Barranquilla y Baranoa.
   sigue exactamente igual que antes. Evidencia en la pestaña Firmas ("Firmada con huella al iniciar").
 - Botón "Descartar ronda" (debajo de Registrar) cuando hay algo llenado: confirma y borra la ronda en curso.
   No anota nada en la hoja (decisión de Jorge, 12 nov 2026).
+- Lugar de la ronda en píldoras (12 nov 2026): por sede, la de siempre (Barranquilla "Cirugía piso 2",
+  Baranoa "Cirugía", en `LUGARES_BASE`) ya elegida + "Otro". Lo escrito en "Otro" queda como píldora en ese
+  celular (hasta 5 por sede); si coincide con una existente (tildes, mayúsculas, espacios) usa la existente.
+- Si el celular tiene huella registrada, "Quien hace la ronda" es una sola línea (sin elegir nombre ni firmar
+  con el dedo). Si no inició con huella, la pide al tocar "Estoy de acuerdo". Sin huella (Kevin hoy): igual que antes.
 - Quien recibe se recuerda por sede en cada celular (la jefe aparece elegida en la siguiente ronda).
 - Validez: firma electrónica (Ley 527 de 1999, Decreto 2364 de 2012). Recomendado: formato aprobado por calidad
   y acuerdo firmado una vez por cada firmante.

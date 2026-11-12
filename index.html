@@ -155,6 +155,15 @@ nav button.on{color:var(--vino);box-shadow:inset 0 3px 0 var(--vino)}
 #confirmar .si .i{width:20px;height:20px}#confirmar .si:disabled{opacity:.6}
 #confirmar .cerr{color:var(--mal);font-size:13px;font-weight:600;margin-top:8px;min-height:0}
 #confirmar .desp{display:none}
+/* Lugar con píldoras */
+#lugarC .chip.otroC{border-style:dashed;border-color:var(--vino);color:var(--vino)}
+#lugarC .chip.otroC.on{border-style:solid;color:#fff}
+#lugar{margin-top:10px}
+/* Quien hace la ronda en una línea, cuando el celular tiene su huella */
+#cRealiza .linea{display:none;align-items:center;justify-content:space-between;gap:10px;font-size:14.5px;font-weight:700;color:var(--vino)}
+#cRealiza.compacta{padding:12px 14px}
+#cRealiza.compacta .linea{display:flex}
+#cRealiza.compacta>h2,#cRealiza.compacta>.f,#cRealiza.compacta>#c1box{display:none!important}
 .desc{display:none;width:100%;margin-top:10px;padding:13px;border:1.5px solid var(--borde);border-radius:14px;background:#fff;color:var(--mal);font:inherit;font-size:15px;font-weight:700;align-items:center;justify-content:center;gap:8px}
 .desc .i{width:18px;height:18px}.desc.ver{display:flex}
 #descartar .box h3{color:var(--mal)}#descartar .si{background:#FCEBEA;color:var(--mal)}
@@ -251,12 +260,13 @@ button:not(:disabled),a{cursor:pointer}
   <div class="card"><h2>Datos de la ronda</h2>
     <div class="f"><span class="lab" id="sedeLab" style="margin-top:0">Sede</span>
     <div class="seg" id="sedeBtns" role="group" aria-labelledby="sedeLab"></div><input type="hidden" id="sede"></div>
-    <div class="f"><label for="lugar">Lugar donde se hace la ronda</label>
-    <input id="lugar" autocomplete="off" placeholder="Ej.: Cirugía, Urgencias, Hospitalización…"></div>
+    <div class="f"><span class="lab" id="lugarLab">Lugar donde se hace la ronda</span>
+    <div class="chips" id="lugarC" role="group" aria-labelledby="lugarLab"></div>
+    <input id="lugar" class="otro" autocomplete="off" aria-labelledby="lugarLab" placeholder="Escribe el lugar"></div>
   </div>
   <div id="lista"></div>
   <button class="add" onclick="addItem()">Agregar cilindro</button>
-  <div class="card"><h2>Quien hace la ronda<span class="tag" id="t1"></span></h2>
+  <div class="card" id="cRealiza"><div class="linea"><span id="lRealiza"></span><span class="tag hu" id="lRealizaT"></span></div><h2>Quien hace la ronda<span class="tag" id="t1"></span></h2>
     <div class="f"><label for="realiza" style="margin-top:0">Nombre de quien hace la ronda</label>
     <select id="realiza" onchange="onRealiza()" disabled><option value="">Primero elige la sede</option></select>
     <input id="realizaOtro" class="otro" autocomplete="off" placeholder="Escribe el nombre completo"></div>
@@ -295,7 +305,7 @@ button:not(:disabled),a{cursor:pointer}
 <input id="codigo" type="password" autocomplete="off" placeholder="Código de acceso">
 <button class="go" id="btnIng" onclick="entrar()">Entrar</button><div class="err" id="ingErr"></div></div></div>
 <div class="modal" id="confirmar" role="dialog" aria-modal="true" aria-labelledby="cTit"><div class="box"><h3 id="cTit">Revisa y confirma</h3>
-<dl id="cRes"></dl><p class="nota" style="margin:6px 0 0">Al tocar el botón confirmas que estos datos son correctos. Es tu firma de la ronda, junto con la huella que pusiste al iniciarla.</p>
+<dl id="cRes"></dl><p class="nota" style="margin:6px 0 0">Al tocar el botón confirmas que estos datos son correctos. Es tu firma de la ronda, junto con tu huella.</p>
 <div class="cerr" id="cErr" role="alert"></div>
 <button class="si" id="cSi" onclick="confirmarRonda()"></button><button class="desp" id="cDesp" onclick="enviarRonda({despues:true})">Registrar y firmar después</button><button onclick="cerrarModal('confirmar')">Volver a la ronda</button></div></div>
 <div class="modal" id="descartar" role="dialog" aria-modal="true" aria-labelledby="dTit"><div class="box"><h3 id="dTit">¿Descartar esta ronda?</h3><p id="dTxt"></p>
@@ -370,16 +380,16 @@ async function entrar(){const c=$('codigo').value.trim();if(!c)return;const b=$(
 function pintarSedes(){const l=cfg.sedes&&cfg.sedes.length?cfg.sedes:['Barranquilla','Baranoa'],v=$('sede').value;
  $('sedeBtns').innerHTML=l.map(n=>`<button type="button" data-v="${esc(n)}" aria-pressed="false" onclick="elegirSede(this)">${IC.ok}${esc(n)}</button>`).join('');setSede(v);}
 function setSede(v){$('sede').value=v||'';document.querySelectorAll('#sedeBtns button').forEach(b=>{const on=b.dataset.v===v;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);});}
-function elegirSede(b){setSede(b.dataset.v);onSede();ponerHabitual();guardarBorrador();actualizar();}
+function elegirSede(b){setSede(b.dataset.v);onSede();lugarPorDefecto();ponerHabitual();guardarBorrador();actualizar();}
 function onSede(conservar){const s=$('sede').value,r=$('realiza'),previo=r.value,otro=$('realizaOtro').value;
  if(!s){r.disabled=true;r.innerHTML='<option value="">Primero elige la sede</option>';}
  else{const l=(cfg.responsables[s]||[]);r.disabled=false;
   const y=yoDisp(),l2=y&&(y.sede===s||y.sede==='Todas')&&!l.some(n=>n.toLowerCase()===y.nombre.toLowerCase())?l.concat([y.nombre]):l;
-  const ini=inicioAct(),l3=ini&&!l2.some(n=>n.toLowerCase()===ini.nombre.toLowerCase())?l2.concat([ini.nombre]):l2;
+  const fijo=nombreFijo(),l3=fijo&&!l2.some(n=>n.toLowerCase()===fijo.toLowerCase())?l2.concat([fijo]):l2;
   r.innerHTML='<option value="">Seleccionar…</option>'+l3.map(n=>`<option>${esc(n)}</option>`).join('')+`<option value="${OTRO}">Otro (escribir nombre)</option>`;}
  if(conservar&&previo&&[...r.options].some(o=>o.value===previo))r.value=previo;
- const ini=s&&inicioAct();if(ini){const o=[...r.options].find(o=>o.value.toLowerCase()===ini.nombre.toLowerCase());if(o)r.value=o.value;}
- r.disabled=!s||!!ini;
+ const fijo=s&&nombreFijo();if(fijo){const o=[...r.options].find(o=>o.value.toLowerCase()===fijo.toLowerCase());if(o)r.value=o.value;}
+ r.disabled=!s||!!fijo;
  onRealiza();if(conservar&&r.value===OTRO)$('realizaOtro').value=otro;
  pintarRecibe(conservar);}
 function onRealiza(){const o=$('realiza').value===OTRO;$('realizaOtro').style.display=o?'block':'none';if(!o)$('realizaOtro').value='';revisarRealiza();}
@@ -396,8 +406,13 @@ function pintarModo(n){const box=$('modo'+n),vis=box.style.display!=='none';
  if(!h&&antes==='none'&&pads['c'+n])requestAnimationFrame(()=>pads['c'+n].medir());
  if(n===2)pintarInv();}
 function nombreRealiza(){const sel=$('realiza').value;return sel===OTRO?titulo($('realizaOtro').value):sel;}
+/* Con la huella registrada en este celular, quien hace la ronda es su dueño y firma con huella (al iniciar o al confirmar) */
+const nombreFijo=()=>{const i=inicioAct(),y=yoDisp();return i?i.nombre:y?y.nombre:'';};
+const firmaConHuella=()=>{const y=yoDisp();return !!(y&&$('realiza').value&&$('realiza').value.toLowerCase()===y.nombre.toLowerCase());};
 function revisarRealiza(){const y=yoDisp(),nom=nombreRealiza(),mio=!!(y&&nom&&nom.toLowerCase()===y.nombre.toLowerCase());
- if(firmaInicio()){$('modo1').style.display='none';$('c1box').style.display='none';pintarInicio();return;}
+ const cR=$('cRealiza');cR.classList.toggle('compacta',!!y);
+ if(y){const i=inicioAct();$('lRealiza').textContent='Hace la ronda: '+y.nombre;$('lRealizaT').innerHTML=HU_I+(i?'Huella al iniciar':'Firma con huella');}
+ if(firmaInicio()||firmaConHuella()){$('modo1').style.display='none';$('c1box').style.display='none';pintarInicio();return;}
  $('modo1').style.display=mio?'':'none';if(mio&&!modo[1])modo[1]='huella';pintarModo(1);pintarInicio();}
 const huella1=()=>$('modo1').style.display!=='none'&&modo[1]==='huella';
 const huella2=()=>$('modo2').style.display!=='none'&&modo[2]==='huella';
@@ -424,6 +439,7 @@ function invitarDesdeRecibe(){FV.vista='invitar';FV.prefill=titulo($('recibe').v
 const MAX_RONDA=90*60000;
 const inicioAct=()=>{const i=ls.get('inicio',null),y=yoDisp();return i&&y&&i.fid===y.id&&i.aserto?i:null;};
 const firmaInicio=()=>{const i=inicioAct();return !!(i&&$('realiza').value===i.nombre);};
+const firmaHuella=()=>firmaInicio()||firmaConHuella();
 const retosVig=()=>(ls.get('retos',[])||[]).filter(r=>r&&r.id&&r.vence>Date.now()+3600000);
 let llenando=null;
 function llenarRetos(forzar){if(llenando)return llenando;if(!yoDisp()||!ls.get('codigo','')||retosVig().length>=3)return Promise.resolve();
@@ -454,13 +470,39 @@ async function iniciarConHuella(){const y=yoDisp(),b=$('iniGo');if(!y)return;if(
  catch(e){toast(Huella.error(e));}finally{pintarInicio();}}
 function cancelarInicio(){ls.del('inicio');onSede(true);guardarBorrador();actualizar();pintarInicio();}
 /* Descartar: borra la ronda en curso (nunca se envió, así que no toca la hoja ni Drive) */
-function hayAlgo(){return !!($('lugar').value.trim()||!pads.c1.vacio()||!pads.c2.vacio()||inicioAct()||
+function hayAlgo(){return !!((lugarOtro&&$('lugar').value.trim())||!pads.c1.vacio()||!pads.c2.vacio()||inicioAct()||
  [...document.querySelectorAll('.item')].some(e=>['.gas','.serial','.presion','.ubic','.obs'].some(k=>e.querySelector(k).value.trim()))||document.querySelectorAll('.item').length>1);}
 function descartarRonda(){const n=document.querySelectorAll('.item').length,par=[];
- if($('lugar').value.trim())par.push('el lugar');par.push(n===1?'el cilindro':'los '+n+' cilindros');if(!pads.c1.vacio()||!pads.c2.vacio())par.push('las firmas');
+ par.push(n===1?'el cilindro':'los '+n+' cilindros');if(!pads.c1.vacio()||!pads.c2.vacio())par.push('las firmas');
  $('dTxt').textContent='Se borran '+(par.length>1?par.slice(0,-1).join(', ')+' y '+par[par.length-1]:par[0])+(inicioAct()?', y tu huella del inicio':'')+'. No se puede deshacer.';
  abrirModal('descartar');}
 function descartarYa(){cerrarModal('descartar');ls.del('inicio');nueva();toast('Ronda descartada');}
+/* Lugar de la ronda: píldoras por sede (las de siempre + los "Otro" que se hayan usado) */
+const LUGARES_BASE={'Barranquilla':['Cirugía piso 2'],'Baranoa':['Cirugía']};
+const norm=t=>String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim().toLowerCase();
+let lugarOtro=false;
+function lugaresSede(s){const base=LUGARES_BASE[s]||[],extra=((ls.get('lugares',{})||{})[s])||[],out=[];
+ base.concat(extra).forEach(l=>{if(l&&!out.some(x=>norm(x)===norm(l)))out.push(l);});return out;}
+function pintarLugares(){const s=$('sede').value,c=$('lugarC'),v=$('lugar').value,l=lugaresSede(s);
+ const hit=!lugarOtro&&l.find(x=>norm(x)===norm(v));
+ c.innerHTML=(s?l.map(x=>`<button type="button" class="chip${hit===x?' on':''}" data-v="${esc(x)}" aria-pressed="${hit===x}" onclick="elegirLugar(this)">${IC.ok}${esc(x)}</button>`).join(''):'')+
+  `<button type="button" class="chip otroC${lugarOtro?' on':''}" aria-pressed="${lugarOtro}" onclick="elegirLugar(null)">${IC.ok}Otro</button>`;
+ $('lugar').style.display=lugarOtro?'block':'none';}
+function elegirLugar(b){if(b){lugarOtro=false;$('lugar').value=b.dataset.v;}else{lugarOtro=true;const l=lugaresSede($('sede').value);if(l.some(x=>norm(x)===norm($('lugar').value)))$('lugar').value='';}
+ pintarLugares();if(!b)$('lugar').focus();guardarBorrador();actualizar();}
+/* Al elegir sede o empezar una ronda nueva: queda elegido el lugar de siempre de esa sede */
+function lugarPorDefecto(){const s=$('sede').value;if(!s)return pintarLugares();
+ const l=lugaresSede(s),v=$('lugar').value;
+ if(lugarOtro&&v.trim())return pintarLugares();
+ if(!v||!l.some(x=>norm(x)===norm(v))){lugarOtro=false;$('lugar').value=l[0]||'';}
+ pintarLugares();}
+/* Al restaurar un borrador: si el lugar no es una píldora, se muestra como "Otro" */
+function lugarDeBorrador(){const v=$('lugar').value,l=lugaresSede($('sede').value);lugarOtro=!!(v.trim()&&!l.some(x=>norm(x)===norm(v)));pintarLugares();}
+/* Si escriben en "Otro" un lugar que ya es píldora (aunque cambie una tilde), se usa el de la píldora */
+function lugarFinal(sede,v){const l=lugaresSede(sede);return l.find(x=>norm(x)===norm(v))||v.replace(/\s+/g,' ').trim();}
+function recordarLugar(sede,v){const base=(LUGARES_BASE[sede]||[]).map(norm),L=ls.get('lugares',{})||{};
+ if(v&&!base.includes(norm(v))){L[sede]=[v].concat((L[sede]||[]).filter(x=>norm(x)!==norm(v))).slice(0,5);ls.set('lugares',L);}}
+
 /* Quien recibe casi siempre es la misma persona: se recuerda por sede en este celular */
 function recordarHabitual(sede,recF,recibe){const h=ls.get('habitual',{})||{};h[sede]=recF?{id:recF.id,nombre:recF.nombre}:{nombre:recibe};ls.set('habitual',h);}
 function ponerHabitual(){const s=$('sede').value,h=(ls.get('habitual',{})||{})[s],sel=$('recibeSel');
@@ -516,7 +558,7 @@ function abrir(b){const e=b.closest('.item');cerrarCompletos(e);e.classList.remo
 let intentado=false;
 function faltantes(){const F=[],add=(t,el,m)=>F.push({t,el,m});
  if(!$('sede').value)add('sede',$('sedeBtns'),'Elige la sede.');
- if(!$('lugar').value.trim())add('lugar',$('lugar'),'Escribe el lugar donde se hace la ronda.');
+ if(!$('lugar').value.trim())add('lugar',lugarOtro?$('lugar'):$('lugarC'),lugarOtro?'Escribe el lugar donde se hace la ronda.':'Elige el lugar donde se hace la ronda.');
  document.querySelectorAll('.item').forEach((e,i)=>{const q=x=>e.querySelector(x),f=[],u=q('.ubic').value;
   if(!q('.gas').value){f.push('tipo de gas');add('',q('.gasC'),'Elige el tipo de gas.');}
   if(!q('.serial').value.trim()){f.push('serial');add('',q('.serial'),'Falta el serial.');}
@@ -527,7 +569,7 @@ function faltantes(){const F=[],add=(t,el,m)=>F.push({t,el,m});
  const sel=$('realiza').value;
  if(!sel)add('quién hace la ronda',$('realiza'),$('sede').value?'Elige quién hace la ronda.':'Primero elige la sede.');
  else if(sel===OTRO&&!$('realizaOtro').value.trim())add('quién hace la ronda',$('realizaOtro'),'Escribe el nombre completo.');
- if(!huella1()&&!firmaInicio()&&pads.c1&&pads.c1.vacio())add('firma de quien hace la ronda',$('c1'),'Falta la firma de quien hace la ronda.');
+ if(!huella1()&&!firmaHuella()&&pads.c1&&pads.c1.vacio())add('firma de quien hace la ronda',$('c1'),'Falta la firma de quien hace la ronda.');
  const rs=$('recibeSel');
  if(rs.style.display!=='none'&&!rs.value)add('quién recibe',rs,'Elige quién recibe.');
  else if(!recibeNombre())add('quién recibe',$('recibe'),'Escribe el nombre de quien recibe.');
@@ -540,7 +582,7 @@ function actualizar(){if(!pads.c1||!pads.c2)return[];const F=faltantes(),nom=F.f
  [['t1','c1',huella1()||firmaInicio(),firmaInicio()?'Huella al iniciar':'Firma con huella'],['t2','c2',huella2(),'Firmará en su celular']].forEach(([t,c,h,txt])=>{const v=!h&&pads[c].vacio(),el=$(t),clave=h?'h'+txt:v?'0':'1',antes=el.dataset.v;el.dataset.v=clave;
   if(antes===clave)return;el.className='tag'+(h?' hu':v?'':' ok')+(clave!=='0'&&antes==='0'?' salta':'');el.innerHTML=(h?HU_I:v?IC.al:IC.ok)+(h?txt:v?'Falta firma':'Firmado');});
  $('btnDesc').classList.toggle('ver',formListo&&hayAlgo());
- const bR=$('btnReg');if(!bR.disabled)bR.textContent=firmaInicio()?'Revisar y registrar':'Registrar ronda';
+ const bR=$('btnReg');if(!bR.disabled)bR.textContent=firmaHuella()?'Revisar y registrar':'Registrar ronda';
  pintarInv();
  pintarAvance(nom);
  fa.className='falta'+(nom.length?'':' ok');fa.innerHTML=(nom.length?IC.al:IC.ok)+'<span></span>';
@@ -584,7 +626,7 @@ function restaurar(){const b=ls.get('borrador',null);$('lista').innerHTML='';
  if(!b||!b.items||!b.items.length){addItem(true);formListo=true;actualizar();return;}
  setSede(b.sede||'');onSede();modo={1:b.modo1||'',2:b.modo2||''};
  if(b.realiza&&[...$('realiza').options].some(o=>o.value===b.realiza))$('realiza').value=b.realiza;onRealiza();$('realizaOtro').value=b.realizaOtro||'';revisarRealiza();
- $('lugar').value=b.lugar||'';$('recibe').value=b.recibe||'';
+ $('lugar').value=b.lugar||'';lugarDeBorrador();$('recibe').value=b.recibe||'';
  if(b.recibeSel&&[...$('recibeSel').options].some(o=>o.value===b.recibeSel))$('recibeSel').value=b.recibeSel;onRecibe(true);
  b.items.forEach(it=>{const e=addItem(true),set=(s,v)=>{e.querySelector(s).value=v||'';};
   setGas(e,it.gas);
@@ -613,27 +655,27 @@ async function registrar(){
  intentado=true;const F=actualizar(),pri=F.find(x=>x.el);
  if(F.length){if(pri){const it=pri.el.closest('.item');if(it)it.classList.remove('cerrado');pri.el.scrollIntoView({behavior:SUAVE,block:'center'});}
   toast('Completa lo marcado en rojo para registrar');return;}
- if(firmaInicio())return abrirConfirmar();
+ if(firmaHuella())return abrirConfirmar();
  return enviarRonda({});}
 /* Resumen con "Estoy de acuerdo": es la aprobación del contenido por quien hace la ronda */
-function abrirConfirmar(){const i=inicioAct(),its=[...document.querySelectorAll('.item')],obs=its.filter(e=>e.querySelector('.obs').value.trim()).length;
+function abrirConfirmar(){const i=inicioAct(),y=yoDisp(),its=[...document.querySelectorAll('.item')],obs=its.filter(e=>e.querySelector('.obs').value.trim()).length;
  const gases=[...new Set(its.map(e=>e.querySelector('.gas').value))].join(', ');
  const dd=(t,v)=>`<dt>${t}</dt><dd>${esc(v)}</dd>`;
  const rec=recibeNombre(),firR=huella2()?'firmará desde su celular':pads.c2.vacio()?'sin firma':'firmó con el dedo';
  $('cRes').innerHTML=dd('Sede y lugar',$('sede').value+' · '+$('lugar').value.trim())+dd('Cilindros',its.length+(its.length===1?' cilindro':' cilindros')+' ('+gases+')'+(obs?' · '+obs+' con observación':''))+
-  dd('Hace la ronda',i.nombre+' · huella a las '+horaCorta(i.t))+dd('Recibe',rec+' · '+firR);
- const viejo=Date.now()-i.t>MAX_RONDA;
- $('cSi').innerHTML=(viejo?HU_I+'Poner mi huella y registrar':IC.ok+'Estoy de acuerdo y registro');$('cSi').disabled=false;
- $('cErr').textContent=viejo?'Pasó más de 1 h 30 min desde que iniciaste: confirma con tu huella.':'';$('cErr').style.color=viejo?'#8A5200':'';
+  dd('Hace la ronda',i?i.nombre+' · huella a las '+horaCorta(i.t):y.nombre+' · firma con huella al registrar')+dd('Recibe',rec+' · '+firR);
+ const viejo=!i||Date.now()-i.t>MAX_RONDA;
+ $('cSi').innerHTML=(viejo?HU_I+'Estoy de acuerdo · poner mi huella':IC.ok+'Estoy de acuerdo y registro');$('cSi').disabled=false;
+ $('cErr').textContent=i&&viejo?'Pasó más de 1 h 30 min desde que iniciaste: confirma con tu huella.':'';$('cErr').style.color=viejo?'#8A5200':'';
  $('cDesp').style.display='none';abrirModal('confirmar');}
-async function confirmarRonda(){const b=$('cSi'),y=yoDisp();let i=inicioAct();if(!i||!y)return cerrarModal('confirmar');
+async function confirmarRonda(){const b=$('cSi'),y=yoDisp();let i=inicioAct();if(!y)return cerrarModal('confirmar');
  b.disabled=true;
- if(Date.now()-i.t>MAX_RONDA){$('cErr').style.color='';$('cErr').textContent='Pon tu dedo cuando el celular lo pida…';
-  try{const r=await retoParaHuella();const a=await Huella.firmar(r,y.llaves);i=Object.assign({},i,{t:Date.now(),aserto:a});ls.set('inicio',i);}
+ if(!i||Date.now()-i.t>MAX_RONDA){$('cErr').style.color='';$('cErr').textContent='Pon tu dedo cuando el celular lo pida…';
+  try{const r=await retoParaHuella();const a=await Huella.firmar(r,y.llaves);i=Object.assign({fid:y.id,nombre:y.nombre},i||{},{t:Date.now(),aserto:a});ls.set('inicio',i);}
   catch(e){b.disabled=false;$('cErr').textContent=Huella.error(e);$('cDesp').style.display='block';return;}}
  cerrarModal('confirmar');return enviarRonda({inicio:i});}
 async function enviarRonda(opc){cerrarModal('confirmar');
- const sede=$('sede').value,lugar=$('lugar').value.trim();
+ const sede=$('sede').value,lugar=lugarFinal(sede,$('lugar').value);
  const items=[...document.querySelectorAll('.item')].map(e=>{const u=e.querySelector('.ubic').value;
   return{gas:e.querySelector('.gas').value,serial:e.querySelector('.serial').value.trim().toUpperCase(),presion:e.querySelector('.presion').value.trim(),
    ubicacion:u==='Otra'?e.querySelector('.ubicOtra').value.trim():u,obs:e.querySelector('.obs').value.trim()};});
@@ -648,7 +690,7 @@ async function enviarRonda(opc){cerrarModal('confirmar');
   const rec={id:A.id,sede,lugar,items,realiza,recibe,fecha:A.fecha,hora:A.hora,imagen:jpg,estado:'pendiente',creada:Date.now(),firmas,
    imgRealiza:h2&&!h1&&!ini?pads.c1.datos():'',imgRecibe:(h1||ini)&&!h2?pads.c2.datos():''};
   try{await colaPut(rec);}catch(e){return aviso('La ronda NO se registró','No se pudo guardar en este celular (sin espacio o almacenamiento bloqueado).');}
-  ls.del('borrador');ls.del('inicio');recordarObs(items);recordarHabitual(sede,recF,recibe);
+  ls.del('borrador');ls.del('inicio');recordarObs(items);recordarHabitual(sede,recF,recibe);recordarLugar(sede,lugar);
   const l=cfg.responsables[sede]=cfg.responsables[sede]||[];if(!l.some(n=>n.toLowerCase()===realiza.toLowerCase())){l.push(realiza);ls.set('cfg',cfg);}
   modal('guardada',rec);await estado();
   const res=await sincronizar();modal(res&&res[rec.id]||{},rec);
@@ -667,8 +709,8 @@ async function modal(r,rec){modalId=rec.id;const t=$('mTit'),x=$('mTxt'),j=$('mJ
  else{tit(IC.ok,'Ronda guardada en el celular');t.className='aviso';x.textContent='Aún no se pudo enviar (sin conexión o señal débil). Se enviará sola cuando haya internet. No borres los datos de la app hasta que desaparezca el aviso de pendientes.';}
  const d=$('mDown');d.href=rec.imagen;d.download='Ronda_'+rec.sede+'_'+rec.id+'.jpg';
  abrirModal('modal');}
-function nueva(){cerrarModal('modal');ls.del('borrador');formListo=false;intentado=false;$('lista').innerHTML='';$('lugar').value='';$('recibe').value='';
- modo={1:'',2:''};$('recibeSel').value='';onSede();$('realiza').value='';onRealiza();pads.c1.borrar();pads.c2.borrar();addItem(true);ponerHabitual();formListo=true;guardarYa();actualizar();pintarInicio();window.scrollTo(0,0);}
+function nueva(){cerrarModal('modal');ls.del('borrador');formListo=false;intentado=false;$('lista').innerHTML='';$('lugar').value='';lugarOtro=false;$('recibe').value='';
+ modo={1:'',2:''};$('recibeSel').value='';$('realiza').value='';onSede();pads.c1.borrar();pads.c2.borrar();addItem(true);lugarPorDefecto();ponerHabitual();formListo=true;guardarYa();actualizar();pintarInicio();window.scrollTo(0,0);}
 
 /* ---------- Sincronización ---------- */
 let enSync=null,conectado=navigator.onLine!==false;
@@ -842,7 +884,7 @@ function pintarActivar(y){
   catch(e){b.disabled=false;$('aErr').textContent=Huella.error(e);}};}
 
 /* ---------- Arranque ---------- */
-function iniciar(){pintarSedes();onSede();restaurar();estado();sincronizar();pintarNavFirm();pintarInicio();llenarRetos();
+function iniciar(){pintarSedes();onSede();restaurar();lugarPorDefecto();estado();sincronizar();pintarNavFirm();pintarInicio();llenarRetos();
  api('config',null,20000).then(d=>{cfg=d;ls.set('cfg',d);pintarSedes();onSede(true);guardarBorrador();actualizar();}).catch(e=>{if(e.auth)pedirCodigo('El código ya no es válido. Escribe el código nuevo.');});}
 (async function(){
  const alFirmar=()=>{guardarBorrador();actualizar();};pad('c1',alFirmar);pad('c2',alFirmar);pintarSedes();

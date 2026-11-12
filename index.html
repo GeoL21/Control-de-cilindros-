@@ -155,6 +155,9 @@ nav button.on{color:var(--vino);box-shadow:inset 0 3px 0 var(--vino)}
 #confirmar .si .i{width:20px;height:20px}#confirmar .si:disabled{opacity:.6}
 #confirmar .cerr{color:var(--mal);font-size:13px;font-weight:600;margin-top:8px;min-height:0}
 #confirmar .desp{display:none}
+.desc{display:none;width:100%;margin-top:10px;padding:13px;border:1.5px solid var(--borde);border-radius:14px;background:#fff;color:var(--mal);font:inherit;font-size:15px;font-weight:700;align-items:center;justify-content:center;gap:8px}
+.desc .i{width:18px;height:18px}.desc.ver{display:flex}
+#descartar .box h3{color:var(--mal)}#descartar .si{background:#FCEBEA;color:var(--mal)}
 .fir{display:flex;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #F1E8EC}.fir:last-child{border:0}
 .fir .av{width:40px;height:40px;border-radius:50%;background:var(--rosa);color:var(--vino);display:grid;place-items:center;font-weight:800;font-size:13px;flex:none}
 .fir .t{flex:1;min-width:0}.fir b{display:block;font-size:14.5px}.fir small{display:block;font-size:12.5px;color:#6d5a64;margin-top:1px}
@@ -227,6 +230,7 @@ nav button.on{background:var(--rosa);color:var(--vino);box-shadow:none}
 #vNueva>.card:nth-child(5),#vNueva>.card:nth-child(6){grid-column:span 6}
 #vNueva>.falta{grid-column:span 8;margin:0;align-self:center}
 #vNueva>.reg{grid-column:span 4}
+#vNueva>.desc{grid-column:-5/-1;margin-top:0}
 .hgrid{gap:18px}
 .hcol{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;align-content:start;padding:12px}
 .hcol h3,.hcol .vacio{grid-column:1/-1;margin:0}
@@ -274,6 +278,7 @@ button:not(:disabled),a{cursor:pointer}
     <div class="nota" id="invNota" style="display:none;clear:both">Para que firme con huella la próxima vez, pídele al administrador que lo invite.</div></div></div>
   <div class="falta" id="falta" role="status"></div>
   <button class="reg" id="btnReg" onclick="registrar()">Registrar ronda</button>
+  <button type="button" class="desc" id="btnDesc" onclick="descartarRonda()"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 002 2h8a2 2 0 002-2l1-12M9 7V4h6v3"/></svg>Descartar ronda</button>
 </div>
 
 <div id="vHist" class="wrap ancho" style="display:none"><div id="hist"></div>
@@ -293,6 +298,8 @@ button:not(:disabled),a{cursor:pointer}
 <dl id="cRes"></dl><p class="nota" style="margin:6px 0 0">Al tocar el botón confirmas que estos datos son correctos. Es tu firma de la ronda, junto con la huella que pusiste al iniciarla.</p>
 <div class="cerr" id="cErr" role="alert"></div>
 <button class="si" id="cSi" onclick="confirmarRonda()"></button><button class="desp" id="cDesp" onclick="enviarRonda({despues:true})">Registrar y firmar después</button><button onclick="cerrarModal('confirmar')">Volver a la ronda</button></div></div>
+<div class="modal" id="descartar" role="dialog" aria-modal="true" aria-labelledby="dTit"><div class="box"><h3 id="dTit">¿Descartar esta ronda?</h3><p id="dTxt"></p>
+<button class="si" onclick="descartarYa()">Sí, descartar</button><button onclick="cerrarModal('descartar')">Seguir con la ronda</button></div></div>
 <div class="modal" id="modalErr"><div class="box"><h3 class="mal" id="eTit"></h3><p id="eTxt"></p><button onclick="cerrarModal('modalErr')">Entendido</button></div></div>
 <div class="toast" id="toast"></div>
 
@@ -446,7 +453,14 @@ async function iniciarConHuella(){const y=yoDisp(),b=$('iniGo');if(!y)return;if(
   ls.set('inicio',{fid:y.id,nombre:y.nombre,t:Date.now(),aserto:a});onSede(true);guardarBorrador();actualizar();toast('Ronda iniciada con tu huella');}
  catch(e){toast(Huella.error(e));}finally{pintarInicio();}}
 function cancelarInicio(){ls.del('inicio');onSede(true);guardarBorrador();actualizar();pintarInicio();}
-function descartarRonda(){if(!confirm('¿Descartar esta ronda? Se borran los datos que llenaste.'))return;ls.del('inicio');nueva();toast('Ronda descartada');}
+/* Descartar: borra la ronda en curso (nunca se envió, así que no toca la hoja ni Drive) */
+function hayAlgo(){return !!($('lugar').value.trim()||!pads.c1.vacio()||!pads.c2.vacio()||inicioAct()||
+ [...document.querySelectorAll('.item')].some(e=>['.gas','.serial','.presion','.ubic','.obs'].some(k=>e.querySelector(k).value.trim()))||document.querySelectorAll('.item').length>1);}
+function descartarRonda(){const n=document.querySelectorAll('.item').length,par=[];
+ if($('lugar').value.trim())par.push('el lugar');par.push(n===1?'el cilindro':'los '+n+' cilindros');if(!pads.c1.vacio()||!pads.c2.vacio())par.push('las firmas');
+ $('dTxt').textContent='Se borran '+(par.length>1?par.slice(0,-1).join(', ')+' y '+par[par.length-1]:par[0])+(inicioAct()?', y tu huella del inicio':'')+'. No se puede deshacer.';
+ abrirModal('descartar');}
+function descartarYa(){cerrarModal('descartar');ls.del('inicio');nueva();toast('Ronda descartada');}
 /* Quien recibe casi siempre es la misma persona: se recuerda por sede en este celular */
 function recordarHabitual(sede,recF,recibe){const h=ls.get('habitual',{})||{};h[sede]=recF?{id:recF.id,nombre:recF.nombre}:{nombre:recibe};ls.set('habitual',h);}
 function ponerHabitual(){const s=$('sede').value,h=(ls.get('habitual',{})||{})[s],sel=$('recibeSel');
@@ -525,6 +539,7 @@ function ponErr(el,msg){el.classList.add('bad');const p=el.closest('.f')||el.par
 function actualizar(){if(!pads.c1||!pads.c2)return[];const F=faltantes(),nom=F.filter(x=>x.t).map(x=>x.t),fa=$('falta');
  [['t1','c1',huella1()||firmaInicio(),firmaInicio()?'Huella al iniciar':'Firma con huella'],['t2','c2',huella2(),'Firmará en su celular']].forEach(([t,c,h,txt])=>{const v=!h&&pads[c].vacio(),el=$(t),clave=h?'h'+txt:v?'0':'1',antes=el.dataset.v;el.dataset.v=clave;
   if(antes===clave)return;el.className='tag'+(h?' hu':v?'':' ok')+(clave!=='0'&&antes==='0'?' salta':'');el.innerHTML=(h?HU_I:v?IC.al:IC.ok)+(h?txt:v?'Falta firma':'Firmado');});
+ $('btnDesc').classList.toggle('ver',formListo&&hayAlgo());
  const bR=$('btnReg');if(!bR.disabled)bR.textContent=firmaInicio()?'Revisar y registrar':'Registrar ronda';
  pintarInv();
  pintarAvance(nom);

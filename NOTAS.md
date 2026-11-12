@@ -44,6 +44,8 @@ Sedes: Barranquilla y Baranoa.
   (acción `retoRonda`, 3 por celular, sirven 72 h). Si el servidor no acepta esa huella, la firma queda
   "Pendiente (huella)" como antes y el JPG se corrige solo. Quien no tiene huella (o no la usa al inicio)
   sigue exactamente igual que antes. Evidencia en la pestaña Firmas ("Firmada con huella al iniciar").
+- Botón "Descartar ronda" (debajo de Registrar) cuando hay algo llenado: confirma y borra la ronda en curso.
+  No anota nada en la hoja (decisión de Jorge, 12 nov 2026).
 - Quien recibe se recuerda por sede en cada celular (la jefe aparece elegida en la siguiente ronda).
 - Validez: firma electrónica (Ley 527 de 1999, Decreto 2364 de 2012). Recomendado: formato aprobado por calidad
   y acuerdo firmado una vez por cada firmante.

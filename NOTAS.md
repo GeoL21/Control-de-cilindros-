@@ -11,7 +11,7 @@ Sedes: Barranquilla y Baranoa.
 - Servidor: implementación de Apps Script de esa hoja. Su código NO está en este repo.
 - La URL del servidor está en `config.js` (`window.API_URL`).
 - La PWA llama al servidor por POST con código de acceso (acciones: `config`, `historial`, `registrar`,
-  y las de firmas: `huellaReto`, `adminActivar`, `sesion`, `firmantes`, `invitar`, `reinvitar`, `baja`, `reenviarFirma`).
+  y las de firmas: `huellaReto`, `retoRonda`, `identificar`, `adminActivar`, `sesion`, `firmantes`, `invitar`, `reinvitar`, `baja`, `reenviarFirma`).
 - La página `firmar.html` usa acciones sin código de acceso, protegidas por enlaces de un solo uso
   (`invInfo`, `invReto`, `invRegistrar`, `firmaInfo`, `firmaReto`, `firmaFirmar`, `firmaJpg`, `firmaNoCoincide`).
 - El servidor tiene tres archivos: Code.gs, Firmas.gs y Huella.gs. Los códigos (CODIGO_ACCESO, CODIGO_ADMIN)
@@ -38,6 +38,13 @@ Sedes: Barranquilla y Baranoa.
 - La huella firma un resumen SHA-256 de la ronda; si alguien cambia la ronda, deja de coincidir.
   Evidencia de cada firma en la pestaña "Firmas"; código de verificación en el JPG.
 - El JPG lo dibuja `reporte.js` (lo usan la app y `firmar.html`); al firmar con huella se vuelve a generar.
+- Firma al iniciar (12 nov 2026): quien tiene huella registrada toca "Iniciar ronda con huella"; su nombre
+  se llena solo y al final confirma con "Estoy de acuerdo y registro" (resumen). La ronda llega firmada, sin
+  pendiente. Si pasan más de 90 min, al confirmar pide la huella otra vez. Sin señal usa retos de reserva
+  (acción `retoRonda`, 3 por celular, sirven 72 h). Si el servidor no acepta esa huella, la firma queda
+  "Pendiente (huella)" como antes y el JPG se corrige solo. Quien no tiene huella (o no la usa al inicio)
+  sigue exactamente igual que antes. Evidencia en la pestaña Firmas ("Firmada con huella al iniciar").
+- Quien recibe se recuerda por sede en cada celular (la jefe aparece elegida en la siguiente ronda).
 - Validez: firma electrónica (Ley 527 de 1999, Decreto 2364 de 2012). Recomendado: formato aprobado por calidad
   y acuerdo firmado una vez por cada firmante.
 

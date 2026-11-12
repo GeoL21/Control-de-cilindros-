@@ -138,6 +138,23 @@ nav button.on{color:var(--vino);box-shadow:inset 0 3px 0 var(--vino)}
 .hpie{text-align:center;margin:18px 0 6px}.hpie button{border:0;background:none;color:#8a7680;font:inherit;font-weight:600;font-size:13px;display:inline-flex;gap:6px;align-items:center;min-height:44px;padding:0 10px}
 .hpie .i{width:17px;height:17px}
 #vFirm .seg{margin-bottom:12px}
+/* Iniciar la ronda con huella */
+#ini:empty{display:none}
+#ini{margin-top:12px}
+.ini-go{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:15px;border:0;border-radius:14px;background:var(--vino);color:#fff;font:inherit;font-size:16px;font-weight:800;min-height:52px}
+.ini-go .i{width:22px;height:22px}.ini-go:disabled{opacity:.6}
+.ini-nota{font-size:12.5px;color:#6d5a64;text-align:center;margin:8px 0 0;line-height:1.4}
+.ini-ok{display:flex;align-items:center;gap:10px;background:#E4F3EC;color:#22694B;border-radius:12px;padding:10px 12px;font-size:14px;font-weight:700}
+.ini-ok .i{width:22px;height:22px}.ini-ok div{flex:1;min-width:0}.ini-ok small{display:block;font-weight:600;font-size:12.5px;margin-top:1px}
+.ini-av{background:#FFF3DC;color:#8A5200;border-radius:12px;padding:9px 12px;font-size:12.5px;font-weight:600;margin-top:8px;line-height:1.4}
+.ini-acc{display:flex;gap:8px;margin-top:8px}
+.ini-acc button{flex:1;border:0;background:var(--rosa);color:var(--vino);border-radius:10px;min-height:44px;font:inherit;font-size:13px;font-weight:700;padding:0 10px}
+#confirmar .box{text-align:left}#confirmar .box h3{justify-content:flex-start;color:var(--vino)}
+#confirmar dl{margin:6px 0 4px;font-size:14px}#confirmar dt{color:#6d5a64;font-size:12.5px;font-weight:600;margin-top:8px}#confirmar dd{margin:1px 0 0;font-weight:700}
+#confirmar .si{background:var(--vino);color:#fff;display:flex;align-items:center;justify-content:center;gap:8px}
+#confirmar .si .i{width:20px;height:20px}#confirmar .si:disabled{opacity:.6}
+#confirmar .cerr{color:var(--mal);font-size:13px;font-weight:600;margin-top:8px;min-height:0}
+#confirmar .desp{display:none}
 .fir{display:flex;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #F1E8EC}.fir:last-child{border:0}
 .fir .av{width:40px;height:40px;border-radius:50%;background:var(--rosa);color:var(--vino);display:grid;place-items:center;font-weight:800;font-size:13px;flex:none}
 .fir .t{flex:1;min-width:0}.fir b{display:block;font-size:14.5px}.fir small{display:block;font-size:12.5px;color:#6d5a64;margin-top:1px}
@@ -226,7 +243,7 @@ button:not(:disabled),a{cursor:pointer}
 </div>
 
 <div id="vNueva" class="wrap">
-  <div class="card"><div class="reloj"><span id="fFecha"></span><span id="fHora"></span></div></div>
+  <div class="card"><div class="reloj"><span id="fFecha"></span><span id="fHora"></span></div><div id="ini"></div></div>
   <div class="card"><h2>Datos de la ronda</h2>
     <div class="f"><span class="lab" id="sedeLab" style="margin-top:0">Sede</span>
     <div class="seg" id="sedeBtns" role="group" aria-labelledby="sedeLab"></div><input type="hidden" id="sede"></div>
@@ -272,6 +289,10 @@ button:not(:disabled),a{cursor:pointer}
 <p id="ingTxt">Escribe el código que te dio el administrador. Solo se pide una vez en este celular y se necesita internet.</p>
 <input id="codigo" type="password" autocomplete="off" placeholder="Código de acceso">
 <button class="go" id="btnIng" onclick="entrar()">Entrar</button><div class="err" id="ingErr"></div></div></div>
+<div class="modal" id="confirmar" role="dialog" aria-modal="true" aria-labelledby="cTit"><div class="box"><h3 id="cTit">Revisa y confirma</h3>
+<dl id="cRes"></dl><p class="nota" style="margin:6px 0 0">Al tocar el botón confirmas que estos datos son correctos. Es tu firma de la ronda, junto con la huella que pusiste al iniciarla.</p>
+<div class="cerr" id="cErr" role="alert"></div>
+<button class="si" id="cSi" onclick="confirmarRonda()"></button><button class="desp" id="cDesp" onclick="enviarRonda({despues:true})">Registrar y firmar después</button><button onclick="cerrarModal('confirmar')">Volver a la ronda</button></div></div>
 <div class="modal" id="modalErr"><div class="box"><h3 class="mal" id="eTit"></h3><p id="eTxt"></p><button onclick="cerrarModal('modalErr')">Entendido</button></div></div>
 <div class="toast" id="toast"></div>
 
@@ -342,13 +363,16 @@ async function entrar(){const c=$('codigo').value.trim();if(!c)return;const b=$(
 function pintarSedes(){const l=cfg.sedes&&cfg.sedes.length?cfg.sedes:['Barranquilla','Baranoa'],v=$('sede').value;
  $('sedeBtns').innerHTML=l.map(n=>`<button type="button" data-v="${esc(n)}" aria-pressed="false" onclick="elegirSede(this)">${IC.ok}${esc(n)}</button>`).join('');setSede(v);}
 function setSede(v){$('sede').value=v||'';document.querySelectorAll('#sedeBtns button').forEach(b=>{const on=b.dataset.v===v;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);});}
-function elegirSede(b){setSede(b.dataset.v);onSede();guardarBorrador();actualizar();}
+function elegirSede(b){setSede(b.dataset.v);onSede();ponerHabitual();guardarBorrador();actualizar();}
 function onSede(conservar){const s=$('sede').value,r=$('realiza'),previo=r.value,otro=$('realizaOtro').value;
  if(!s){r.disabled=true;r.innerHTML='<option value="">Primero elige la sede</option>';}
  else{const l=(cfg.responsables[s]||[]);r.disabled=false;
   const y=yoDisp(),l2=y&&(y.sede===s||y.sede==='Todas')&&!l.some(n=>n.toLowerCase()===y.nombre.toLowerCase())?l.concat([y.nombre]):l;
-  r.innerHTML='<option value="">Seleccionar…</option>'+l2.map(n=>`<option>${esc(n)}</option>`).join('')+`<option value="${OTRO}">Otro (escribir nombre)</option>`;}
+  const ini=inicioAct(),l3=ini&&!l2.some(n=>n.toLowerCase()===ini.nombre.toLowerCase())?l2.concat([ini.nombre]):l2;
+  r.innerHTML='<option value="">Seleccionar…</option>'+l3.map(n=>`<option>${esc(n)}</option>`).join('')+`<option value="${OTRO}">Otro (escribir nombre)</option>`;}
  if(conservar&&previo&&[...r.options].some(o=>o.value===previo))r.value=previo;
+ const ini=s&&inicioAct();if(ini){const o=[...r.options].find(o=>o.value.toLowerCase()===ini.nombre.toLowerCase());if(o)r.value=o.value;}
+ r.disabled=!s||!!ini;
  onRealiza();if(conservar&&r.value===OTRO)$('realizaOtro').value=otro;
  pintarRecibe(conservar);}
 function onRealiza(){const o=$('realiza').value===OTRO;$('realizaOtro').style.display=o?'block':'none';if(!o)$('realizaOtro').value='';revisarRealiza();}
@@ -366,7 +390,8 @@ function pintarModo(n){const box=$('modo'+n),vis=box.style.display!=='none';
  if(n===2)pintarInv();}
 function nombreRealiza(){const sel=$('realiza').value;return sel===OTRO?titulo($('realizaOtro').value):sel;}
 function revisarRealiza(){const y=yoDisp(),nom=nombreRealiza(),mio=!!(y&&nom&&nom.toLowerCase()===y.nombre.toLowerCase());
- $('modo1').style.display=mio?'':'none';if(mio&&!modo[1])modo[1]='huella';pintarModo(1);}
+ if(firmaInicio()){$('modo1').style.display='none';$('c1box').style.display='none';pintarInicio();return;}
+ $('modo1').style.display=mio?'':'none';if(mio&&!modo[1])modo[1]='huella';pintarModo(1);pintarInicio();}
 const huella1=()=>$('modo1').style.display!=='none'&&modo[1]==='huella';
 const huella2=()=>$('modo2').style.display!=='none'&&modo[2]==='huella';
 function firmantesSede(){const s=$('sede').value;return (cfg.firmantes&&cfg.firmantes[s])||[];}
@@ -385,6 +410,53 @@ function onRecibe(quieto){const sel=$('recibeSel'),hay=sel.style.display!=='none
 function pintarInv(){const otro=!recibeFirmante(),g=esGestor(),hay=!!$('recibe').value.trim();
  $('invRecibe').style.display=otro&&g?'':'none';$('invNota').style.display=otro&&!g&&hay&&$('recibeSel').style.display!=='none'?'':'none';}
 function invitarDesdeRecibe(){FV.vista='invitar';FV.prefill=titulo($('recibe').value);ver('F');}
+
+/* ---------- Iniciar la ronda con huella ----------
+   La huella del inicio + "Estoy de acuerdo" al final = firma de quien hace la ronda.
+   Funciona sin señal: el celular guarda retos de reserva cuando hay internet. */
+const MAX_RONDA=90*60000;
+const inicioAct=()=>{const i=ls.get('inicio',null),y=yoDisp();return i&&y&&i.fid===y.id&&i.aserto?i:null;};
+const firmaInicio=()=>{const i=inicioAct();return !!(i&&$('realiza').value===i.nombre);};
+const retosVig=()=>(ls.get('retos',[])||[]).filter(r=>r&&r.id&&r.vence>Date.now()+3600000);
+let llenando=null;
+function llenarRetos(forzar){if(llenando)return llenando;if(!yoDisp()||!ls.get('codigo','')||retosVig().length>=3)return Promise.resolve();
+ const no=ls.get('retosNo',0);if(!forzar&&no&&Date.now()-no<3600000)return Promise.resolve(); /* servidor sin actualizar: reintenta cada hora */
+ llenando=(async()=>{try{const l=retosVig();while(l.length<3){const r=await api('retoRonda',null,20000);l.push({id:r.id,reto:r.reto,vence:r.vence});ls.set('retos',l);}ls.set('retosOk',true);ls.del('retosNo');}
+  catch(e){if(!e.red&&!e.auth){ls.set('retosOk',false);ls.set('retosNo',Date.now());}}finally{llenando=null;pintarInicio();}})();return llenando;}
+async function retoParaHuella(){let l=retosVig();if(!l.length){await llenarRetos(true);l=retosVig();}
+ if(!l.length)throw new Error(navigator.onLine===false?'Sin señal y sin reservas para la huella. Haz la ronda normal: firmarás con tu huella al registrarla.':'No se pudo preparar la huella. Intenta de nuevo.');
+ const r=l.shift();ls.set('retos',l);llenarRetos();return r;}
+const horaCorta=t=>new Date(t).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit',timeZone:ZONA});
+const diaDe=t=>new Date(t).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:ZONA});
+function pintarInicio(){const box=$('ini'),y=yoDisp(),i=inicioAct();if(!box)return;
+ if(!y){box.innerHTML='';return;}
+ if(i){const viejo=Date.now()-i.t>MAX_RONDA,otroDia=diaDe(i.t)!==diaDe(Date.now());
+  box.innerHTML=`<div class="ini-ok" role="status">${HU_I}<div>${esc(i.nombre)} · verificado<small>Iniciaste la ronda con tu huella${otroDia?' el '+diaDe(i.t):''} a las ${horaCorta(i.t)}</small></div></div>`+
+   (viejo?`<div class="ini-av">${otroDia?'Esta ronda quedó abierta desde otro día.':'Pasó más de 1 h 30 min desde que la iniciaste.'} Al registrarla, el celular te pedirá la huella otra vez.</div>
+   <div class="ini-acc"><button type="button" onclick="descartarRonda()">Descartar esta ronda</button><button type="button" onclick="cancelarInicio()">Quitar mi huella del inicio</button></div>`
+   :`<div class="ini-acc"><button type="button" onclick="cancelarInicio()">Quitar mi huella del inicio</button></div>`);
+  return;}
+ const hay=retosVig().length>0,ok=ls.get('retosOk',false);
+ if(!hay&&navigator.onLine!==false&&!llenando)llenarRetos();
+ if(!hay&&(!ok||navigator.onLine===false)){box.innerHTML='';return;}
+ box.innerHTML=`<button type="button" class="ini-go" id="iniGo" onclick="iniciarConHuella()">${HU_I}Iniciar ronda con huella</button>
+  <p class="ini-nota">Tu nombre se llena solo y, al final, solo confirmas. ${hay?'Funciona sin señal.':''}</p>`;}
+async function iniciarConHuella(){const y=yoDisp(),b=$('iniGo');if(!y)return;if(b)b.disabled=true;toast('Pon tu dedo cuando el celular lo pida…');
+ try{const r=await retoParaHuella();const a=await Huella.firmar(r,y.llaves);
+  ls.set('inicio',{fid:y.id,nombre:y.nombre,t:Date.now(),aserto:a});onSede(true);guardarBorrador();actualizar();toast('Ronda iniciada con tu huella');}
+ catch(e){toast(Huella.error(e));}finally{pintarInicio();}}
+function cancelarInicio(){ls.del('inicio');onSede(true);guardarBorrador();actualizar();pintarInicio();}
+function descartarRonda(){if(!confirm('¿Descartar esta ronda? Se borran los datos que llenaste.'))return;ls.del('inicio');nueva();toast('Ronda descartada');}
+/* Quien recibe casi siempre es la misma persona: se recuerda por sede en este celular */
+function recordarHabitual(sede,recF,recibe){const h=ls.get('habitual',{})||{};h[sede]=recF?{id:recF.id,nombre:recF.nombre}:{nombre:recibe};ls.set('habitual',h);}
+function ponerHabitual(){const s=$('sede').value,h=(ls.get('habitual',{})||{})[s],sel=$('recibeSel');
+ if(!s||!h||$('recibe').value.trim()||sel.value)return;
+ const enLista=sel.style.display!=='none';
+ if(h.id&&enLista&&[...sel.options].some(o=>o.value===h.id))sel.value=h.id;
+ else if(h.nombre){const f=enLista&&firmantesSede().find(x=>x.nombre.toLowerCase()===h.nombre.toLowerCase());
+  if(f)sel.value=f.id;else{if(enLista)sel.value=OTRO;$('recibe').value=h.nombre;}}
+ else return;
+ onRecibe(true);}
 
 /* ---------- Cilindros ---------- */
 function addItem(quieto){const d=document.createElement('div');d.className='card item';
@@ -441,7 +513,7 @@ function faltantes(){const F=[],add=(t,el,m)=>F.push({t,el,m});
  const sel=$('realiza').value;
  if(!sel)add('quién hace la ronda',$('realiza'),$('sede').value?'Elige quién hace la ronda.':'Primero elige la sede.');
  else if(sel===OTRO&&!$('realizaOtro').value.trim())add('quién hace la ronda',$('realizaOtro'),'Escribe el nombre completo.');
- if(!huella1()&&pads.c1&&pads.c1.vacio())add('firma de quien hace la ronda',$('c1'),'Falta la firma de quien hace la ronda.');
+ if(!huella1()&&!firmaInicio()&&pads.c1&&pads.c1.vacio())add('firma de quien hace la ronda',$('c1'),'Falta la firma de quien hace la ronda.');
  const rs=$('recibeSel');
  if(rs.style.display!=='none'&&!rs.value)add('quién recibe',rs,'Elige quién recibe.');
  else if(!recibeNombre())add('quién recibe',$('recibe'),'Escribe el nombre de quien recibe.');
@@ -451,8 +523,9 @@ function limpiaErr(){document.querySelectorAll('#vNueva .bad').forEach(e=>e.clas
 function ponErr(el,msg){el.classList.add('bad');const p=el.closest('.f')||el.parentNode;if(p.querySelector('.emsg'))return;
  const m=document.createElement('div');m.className='emsg';m.innerHTML=IC.al+'<span></span>';m.lastChild.textContent=msg;p.appendChild(m);}
 function actualizar(){if(!pads.c1||!pads.c2)return[];const F=faltantes(),nom=F.filter(x=>x.t).map(x=>x.t),fa=$('falta');
- [['t1','c1',huella1(),'Firma con huella'],['t2','c2',huella2(),'Firmará en su celular']].forEach(([t,c,h,txt])=>{const v=!h&&pads[c].vacio(),el=$(t),clave=h?'h':v?'0':'1',antes=el.dataset.v;el.dataset.v=clave;
+ [['t1','c1',huella1()||firmaInicio(),firmaInicio()?'Huella al iniciar':'Firma con huella'],['t2','c2',huella2(),'Firmará en su celular']].forEach(([t,c,h,txt])=>{const v=!h&&pads[c].vacio(),el=$(t),clave=h?'h'+txt:v?'0':'1',antes=el.dataset.v;el.dataset.v=clave;
   if(antes===clave)return;el.className='tag'+(h?' hu':v?'':' ok')+(clave!=='0'&&antes==='0'?' salta':'');el.innerHTML=(h?HU_I:v?IC.al:IC.ok)+(h?txt:v?'Falta firma':'Firmado');});
+ const bR=$('btnReg');if(!bR.disabled)bR.textContent=firmaInicio()?'Revisar y registrar':'Registrar ronda';
  pintarInv();
  pintarAvance(nom);
  fa.className='falta'+(nom.length?'':' ok');fa.innerHTML=(nom.length?IC.al:IC.ok)+'<span></span>';
@@ -525,32 +598,54 @@ async function registrar(){
  intentado=true;const F=actualizar(),pri=F.find(x=>x.el);
  if(F.length){if(pri){const it=pri.el.closest('.item');if(it)it.classList.remove('cerrado');pri.el.scrollIntoView({behavior:SUAVE,block:'center'});}
   toast('Completa lo marcado en rojo para registrar');return;}
+ if(firmaInicio())return abrirConfirmar();
+ return enviarRonda({});}
+/* Resumen con "Estoy de acuerdo": es la aprobación del contenido por quien hace la ronda */
+function abrirConfirmar(){const i=inicioAct(),its=[...document.querySelectorAll('.item')],obs=its.filter(e=>e.querySelector('.obs').value.trim()).length;
+ const gases=[...new Set(its.map(e=>e.querySelector('.gas').value))].join(', ');
+ const dd=(t,v)=>`<dt>${t}</dt><dd>${esc(v)}</dd>`;
+ const rec=recibeNombre(),firR=huella2()?'firmará desde su celular':pads.c2.vacio()?'sin firma':'firmó con el dedo';
+ $('cRes').innerHTML=dd('Sede y lugar',$('sede').value+' · '+$('lugar').value.trim())+dd('Cilindros',its.length+(its.length===1?' cilindro':' cilindros')+' ('+gases+')'+(obs?' · '+obs+' con observación':''))+
+  dd('Hace la ronda',i.nombre+' · huella a las '+horaCorta(i.t))+dd('Recibe',rec+' · '+firR);
+ const viejo=Date.now()-i.t>MAX_RONDA;
+ $('cSi').innerHTML=(viejo?HU_I+'Poner mi huella y registrar':IC.ok+'Estoy de acuerdo y registro');$('cSi').disabled=false;
+ $('cErr').textContent=viejo?'Pasó más de 1 h 30 min desde que iniciaste: confirma con tu huella.':'';$('cErr').style.color=viejo?'#8A5200':'';
+ $('cDesp').style.display='none';abrirModal('confirmar');}
+async function confirmarRonda(){const b=$('cSi'),y=yoDisp();let i=inicioAct();if(!i||!y)return cerrarModal('confirmar');
+ b.disabled=true;
+ if(Date.now()-i.t>MAX_RONDA){$('cErr').style.color='';$('cErr').textContent='Pon tu dedo cuando el celular lo pida…';
+  try{const r=await retoParaHuella();const a=await Huella.firmar(r,y.llaves);i=Object.assign({},i,{t:Date.now(),aserto:a});ls.set('inicio',i);}
+  catch(e){b.disabled=false;$('cErr').textContent=Huella.error(e);$('cDesp').style.display='block';return;}}
+ cerrarModal('confirmar');return enviarRonda({inicio:i});}
+async function enviarRonda(opc){cerrarModal('confirmar');
  const sede=$('sede').value,lugar=$('lugar').value.trim();
  const items=[...document.querySelectorAll('.item')].map(e=>{const u=e.querySelector('.ubic').value;
   return{gas:e.querySelector('.gas').value,serial:e.querySelector('.serial').value.trim().toUpperCase(),presion:e.querySelector('.presion').value.trim(),
    ubicacion:u==='Otra'?e.querySelector('.ubicOtra').value.trim():u,obs:e.querySelector('.obs').value.trim()};});
  const realiza=nombreRealiza(),recibe=recibeNombre(),y=yoDisp(),recF=recibeFirmante();
- const h1=!!(huella1()&&y),h2=!!(huella2()&&recF);
- const firmas={realiza:h1?{tipo:'huella',fid:y.id}:{tipo:'dedo'},recibe:h2?{tipo:'huella',fid:recF.id}:{tipo:'dedo'}};
+ const ini=opc.inicio||null,h1=!ini&&!!((huella1()||opc.despues)&&y),h2=!!(huella2()&&recF);
+ const firmas={realiza:ini?{tipo:'inicio',fid:ini.fid,aserto:ini.aserto,inicio:ini.t,fin:Date.now()}:h1?{tipo:'huella',fid:y.id}:{tipo:'dedo'},recibe:h2?{tipo:'huella',fid:recF.id}:{tipo:'dedo'}};
  const b=$('btnReg');b.disabled=true;b.textContent='Generando imagen…';
  const A=ahoraBogota(),D={sede,lugar,items,realiza,recibe};
  try{
-  const jpg=await dibujarRonda(D,A,{realiza:h1?{tipo:'pendiente'}:{tipo:'dedo',img:pads.c1.el},recibe:h2?{tipo:'pendiente'}:{tipo:'dedo',img:pads.c2.el}});
+  if(ini)D.codigo=await codigoRonda({id:A.id,sede,fecha:A.fecha,hora:A.hora,lugar,realiza,recibe,items});
+  const jpg=await dibujarRonda(D,A,{realiza:ini?{tipo:'huella',fecha:A.fecha+' '+A.hora}:h1?{tipo:'pendiente'}:{tipo:'dedo',img:pads.c1.el},recibe:h2?{tipo:'pendiente'}:{tipo:'dedo',img:pads.c2.el}});
   const rec={id:A.id,sede,lugar,items,realiza,recibe,fecha:A.fecha,hora:A.hora,imagen:jpg,estado:'pendiente',creada:Date.now(),firmas,
-   imgRealiza:h2&&!h1?pads.c1.datos():'',imgRecibe:h1&&!h2?pads.c2.datos():''};
+   imgRealiza:h2&&!h1&&!ini?pads.c1.datos():'',imgRecibe:(h1||ini)&&!h2?pads.c2.datos():''};
   try{await colaPut(rec);}catch(e){return aviso('La ronda NO se registró','No se pudo guardar en este celular (sin espacio o almacenamiento bloqueado).');}
-  ls.del('borrador');recordarObs(items);
+  ls.del('borrador');ls.del('inicio');recordarObs(items);recordarHabitual(sede,recF,recibe);
   const l=cfg.responsables[sede]=cfg.responsables[sede]||[];if(!l.some(n=>n.toLowerCase()===realiza.toLowerCase())){l.push(realiza);ls.set('cfg',cfg);}
   modal('guardada',rec);await estado();
   const res=await sincronizar();modal(res&&res[rec.id]||{},rec);
  }catch(e){aviso('Ocurrió un error',String(e&&e.message?e.message:e));}
- finally{b.disabled=false;b.textContent='Registrar ronda';}
+ finally{b.disabled=false;actualizar();}
 }
 let modalId=null;
 async function modal(r,rec){modalId=rec.id;const t=$('mTit'),x=$('mTxt'),j=$('mJpg');j.style.display='none';t.className='';$('mFirmas').innerHTML='';
  const tit=(ic,tx)=>{t.innerHTML=ic+'<span></span>';t.lastChild.textContent=tx;};
  if(r==='guardada'){tit(IC.ok,'Ronda guardada');t.className='aviso';x.textContent='Guardada en este celular. Enviando al servidor…';}
- else if(r.ok){tit(IC.ok.replace('class="i"','class="i dibuja"'),'Ronda registrada');x.textContent='La imagen JPG quedó guardada en Drive y la ronda en el historial.';const u=urlJpg(r.url);if(u){j.href=u;j.style.display='block';}
+ else if(r.ok){tit(IC.ok.replace('class="i"','class="i dibuja"'),r.firmaRealiza==='inicio'?'Ronda registrada y firmada':'Ronda registrada');
+  x.textContent=r.firmaRealiza==='inicio'?'Quedó firmada con tu huella'+(r.codigo?' (código '+r.codigo+')':'')+'. El JPG está en Drive y la ronda en el historial.':'La imagen JPG quedó guardada en Drive y la ronda en el historial.';const u=urlJpg(r.url);if(u){j.href=u;j.style.display='block';}
   if(r.pendientes){const fal=[r.pendientes.realiza&&r.pendientes.realiza.nombre,r.pendientes.recibe&&r.pendientes.recibe.nombre].filter(Boolean);
    x.textContent='La imagen JPG quedó guardada. Falta la firma con huella de '+fal.join(' y ')+'.';$('mFirmas').innerHTML=botonesPend(rec.id,r.pendientes);}}
  else if(r.error){tit(IC.al,'Ronda guardada, pero el servidor la rechazó');t.className='mal';x.textContent=r.error+' La ronda sigue guardada en este celular; avísale al administrador.';}
@@ -558,7 +653,7 @@ async function modal(r,rec){modalId=rec.id;const t=$('mTit'),x=$('mTxt'),j=$('mJ
  const d=$('mDown');d.href=rec.imagen;d.download='Ronda_'+rec.sede+'_'+rec.id+'.jpg';
  abrirModal('modal');}
 function nueva(){cerrarModal('modal');ls.del('borrador');formListo=false;intentado=false;$('lista').innerHTML='';$('lugar').value='';$('recibe').value='';
- modo={1:'',2:''};$('recibeSel').value='';onRecibe(true);$('realiza').value='';onRealiza();pads.c1.borrar();pads.c2.borrar();addItem(true);formListo=true;guardarYa();actualizar();window.scrollTo(0,0);}
+ modo={1:'',2:''};$('recibeSel').value='';onSede();$('realiza').value='';onRealiza();pads.c1.borrar();pads.c2.borrar();addItem(true);ponerHabitual();formListo=true;guardarYa();actualizar();pintarInicio();window.scrollTo(0,0);}
 
 /* ---------- Sincronización ---------- */
 let enSync=null,conectado=navigator.onLine!==false;
@@ -566,12 +661,14 @@ function sincronizar(){if(enSync)return enSync;
  enSync=(async()=>{const out={},hechos=new Set();let subidas=0;estado(true);
   try{for(;;){const q=(await colaAll()).filter(r=>!hechos.has(r.id)).sort((a,b)=>a.creada-b.creada);if(!q.length)break;
    const r=q[0];hechos.add(r.id);
-   try{const d=await api('registrar',r,90000);await colaDel(r.id);out[r.id]={ok:true,url:d.url,pendientes:d.pendientes};guardarPend(r,d.pendientes);subidas++;conectado=true;}
+   try{const d=await api('registrar',r,90000);await colaDel(r.id);out[r.id]={ok:true,url:d.url,pendientes:d.pendientes,codigo:d.codigo,firmaRealiza:d.firmaRealiza};guardarPend(r,d.pendientes);subidas++;conectado=true;
+    if(d.corregirJpg&&d.render)try{const j=await rehacerJpg(api,d.corregirJpg,d.render);out[r.id].url=j.url;}catch(e){}}
    catch(e){if(e.auth){out[r.id]={red:true};pedirCodigo('El código ya no es válido. Escribe el código nuevo; tus rondas siguen guardadas.');break;}
     if(e.red||e.conf){out[r.id]={red:true,msg:e.message};conectado=!e.red;break;}
     r.estado='error';r.error=e.message;await colaPut(r);out[r.id]={error:e.message};}}}
   finally{enSync=null;await estado();}
   if(subidas)cargarHist(true).catch(()=>{});
+  llenarRetos();
   return out;})();return enSync;}
 async function estado(trabajando){let n=0;try{n=(await colaAll()).length;}catch(e){}
  const box=$('estBox'),dot=$('dot'),t=$('estTxt'),b=$('btnSync');
@@ -582,8 +679,9 @@ async function estado(trabajando){let n=0;try{n=(await colaAll()).length;}catch(
  else if(off)pon('off',IC.off,'Sin conexión · todo enviado');
  else pon('ok',estado.antes==='sync'?IC.ok.replace('class="i"','class="i dibuja"'):IC.ok,'En línea · todo enviado');
  estado.antes=box.classList.contains('sync')?'sync':'';}
-addEventListener('online',()=>{conectado=true;estado();sincronizar();});
-addEventListener('offline',()=>{conectado=false;estado();});
+addEventListener('online',()=>{conectado=true;estado();sincronizar();pintarInicio();});
+addEventListener('offline',()=>{conectado=false;estado();pintarInicio();});
+setInterval(()=>{if(inicioAct())pintarInicio();},60000);
 function alVolver(){if(ls.get('codigo',''))sincronizar();}
 setInterval(async()=>{try{if((await colaAll()).length&&!enSync)sincronizar();}catch(e){}},60000);
 
@@ -729,7 +827,7 @@ function pintarActivar(y){
   catch(e){b.disabled=false;$('aErr').textContent=Huella.error(e);}};}
 
 /* ---------- Arranque ---------- */
-function iniciar(){pintarSedes();onSede();restaurar();estado();sincronizar();pintarNavFirm();
+function iniciar(){pintarSedes();onSede();restaurar();estado();sincronizar();pintarNavFirm();pintarInicio();llenarRetos();
  api('config',null,20000).then(d=>{cfg=d;ls.set('cfg',d);pintarSedes();onSede(true);guardarBorrador();actualizar();}).catch(e=>{if(e.auth)pedirCodigo('El código ya no es válido. Escribe el código nuevo.');});}
 (async function(){
  const alFirmar=()=>{guardarBorrador();actualizar();};pad('c1',alFirmar);pad('c2',alFirmar);pintarSedes();

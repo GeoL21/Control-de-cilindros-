@@ -340,6 +340,7 @@ nav button.on .i{background:var(--rosa);color:var(--cont)}
 #cRecibe h2,#cRealiza>h2{font-size:15px;color:var(--sec2)}
 .tag:empty{display:none}
 .tag.ok{background:#D3F0DC;color:#1B5E33}
+.i.sello{width:18px!important;height:18px!important;stroke:none}
 #vNueva .seg,#vFirm .seg{background:var(--tarjeta);padding:8px}
 #vFirm .seg{margin-bottom:22px}
 .reg.pend{opacity:1;background:#BE949A}
@@ -501,7 +502,7 @@ try{['codigo','cfg','borrador','hist','obsUsadas'].forEach(k=>{const v=localStor
 const ls={get(k,d){try{const v=localStorage.getItem(PREF+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
  set(k,v){try{localStorage.setItem(PREF+k,JSON.stringify(v));return true}catch(e){return false}},del(k){try{localStorage.removeItem(PREF+k)}catch(e){}}};
 const svg=(d,w)=>`<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w||2.6}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
-const IC={ok:svg('<path d="M5 12l5 5L20 7"/>',3),al:svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 17h.01"/>'),
+const IC={listo:'<svg class="i sello" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="m344-60-76-128-144-32 14-148-98-112 98-112-14-148 144-32 76-128 136 58 136-58 76 128 144 32-14 148 98 112-98 112 14 148-144 32-76 128-136-58-136 58Zm94-278 226-226-56-58-170 170-86-84-56 56 142 142Z"/></svg>',ok:svg('<path d="M5 12l5 5L20 7"/>',3),al:svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 17h.01"/>'),
  sync:svg('<path d="M20 12a8 8 0 01-14 5M4 12a8 8 0 0114-5M18 3v4h-4M6 21v-4h4"/>',2.4),
  off:svg('<path d="M3 3l18 18M8.5 16.5a5 5 0 017 0M5 13a10 10 0 014-2.5M19 13a10 10 0 00-3-2M12 20h.01"/>',2.4)};
 const SUAVE=matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
@@ -579,7 +580,7 @@ const firmaConHuella=()=>{const y=yoDisp();return !!(y&&$('realiza').value&&$('r
 function revisarRealiza(){const y=yoDisp(),nom=nombreRealiza(),mio=!!(y&&nom&&nom.toLowerCase()===y.nombre.toLowerCase());
  const cR=$('cRealiza');cR.classList.toggle('compacta',!!y);
  if(y){const i=inicioAct(),t=$('lRealizaT');$('lRealiza').textContent=y.nombre+(i?' · firmó con huella a las '+horaCorta(i.t):' · firma con huella al registrar');
-  t.className='tag'+(i?' ok':' hu');t.innerHTML=i?IC.ok+'Listo':HU_I+'Con huella';}
+  t.className='tag'+(i?' ok':' hu');t.innerHTML=i?IC.listo+'Listo':HU_I+'Con huella';}
  if(firmaInicio()||firmaConHuella()){$('modo1').style.display='none';$('c1box').style.display='none';pintarInicio();return;}
  $('modo1').style.display=mio?'':'none';if(mio&&!modo[1])modo[1]='huella';pintarModo(1);pintarInicio();}
 const huella1=()=>$('modo1').style.display!=='none'&&modo[1]==='huella';
@@ -689,7 +690,7 @@ function ponerHabitual(){const s=$('sede').value,h=(ls.get('habitual',{})||{})[s
 
 /* ---------- Cilindros ---------- */
 function addItem(quieto){const d=document.createElement('div');d.className='card item';
- d.innerHTML=`<div class="resu"><span class="gt"></span><div class="rt"><b></b><small></small></div><span class="rn">${IC.ok}Listo</span><button type="button" class="ed" onclick="abrir(this)">Editar</button></div>
+ d.innerHTML=`<div class="resu"><span class="gt"></span><div class="rt"><b></b><small></small></div><span class="rn">${IC.listo}Listo</span><button type="button" class="ed" onclick="abrir(this)">Editar</button></div>
  <div class="det"><div class="item-h"><b class="num"></b><button type="button" class="del" onclick="delItem(this)">Quitar</button></div>
  <div class="f"><span class="lab">Tipo de gas</span><div class="chips gasC" role="group" aria-label="Tipo de gas">${GASES.map(g=>`<button type="button" class="chip" data-v="${g}" aria-pressed="false" onclick="elegirGas(this)">${IC.ok}${g}</button>`).join('')}</div><input type="hidden" class="gas"></div>
  <div class="fila"><div class="f"><label>Serial del cilindro<input class="serial" autocomplete="off" autocapitalize="characters" spellcheck="false" style="margin-top:6px"></label></div>
@@ -762,8 +763,8 @@ function ponErr(el,msg){el.classList.add('bad');const p=el.closest('.f')||el.par
  const m=document.createElement('div');m.className='emsg';m.innerHTML=IC.al+'<span></span>';m.lastChild.textContent=msg;p.appendChild(m);}
 function actualizar(){pintarEncabezado();if(!pads.c1||!pads.c2)return[];const F=faltantes(),nom=F.filter(x=>x.t).map(x=>x.t),fa=$('falta');
  [['t1','c1',huella1()||firmaInicio(),firmaInicio()?'Huella al iniciar':'Firma con huella'],['t2','c2',huella2(),'Firmará en su celular']].forEach(([t,c,h,txt])=>{const v=!h&&pads[c].vacio(),el=$(t),clave=h?'h'+txt:v?'0':'1',antes=el.dataset.v;el.dataset.v=clave;
-  if(antes===clave)return;el.className='tag'+(h?' hu':v?'':' ok')+(clave!=='0'&&antes==='0'?' salta':'');el.innerHTML=(h?HU_I:v?IC.al:IC.ok)+(h?txt:v?'Falta firma':'Listo');});
- const lg=!!$('lugar').value.trim(),tL=$('tL');tL.className='tag'+(lg?' ok':'');tL.innerHTML=lg?IC.ok+'Listo':'';tL.style.display=lg?'':'none';
+  if(antes===clave)return;el.className='tag'+(h?' hu':v?'':' ok')+(clave!=='0'&&antes==='0'?' salta':'');el.innerHTML=(h?HU_I:v?IC.al:IC.listo)+(h?txt:v?'Falta firma':'Listo');});
+ const lg=!!$('lugar').value.trim(),tL=$('tL');tL.className='tag'+(lg?' ok':'');tL.innerHTML=lg?IC.listo+'Listo':'';tL.style.display=lg?'':'none';
  if(!F.length)cerrarSnack();
  $('btnDesc').classList.toggle('ver',formListo&&hayAlgo());
  const bR=$('btnReg');if(!bR.disabled)bR.textContent=firmaHuella()?'Revisar y registrar':'Registrar ronda';

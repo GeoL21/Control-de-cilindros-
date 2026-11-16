@@ -21,13 +21,16 @@ Sedes: Barranquilla y Baranoa.
 
 ## Reglas que no se cambian
 - Debe funcionar sin señal (hay áreas sin WiFi ni datos) y subir los registros al volver la conexión.
-- El formulario se mantiene: es más informativo y dice qué pasos faltan.
-  Se probó un rediseño del formulario (noviembre de 2026) y se descartó.
-- Marco modernizado y aprobado (4 nov 2026), igual que Tanques e Inventario: encabezado blanco sin franja vino,
-  logo en el menú lateral en PC, estado como etiqueta, barra de avance "X de N pasos" y animaciones con propósito.
+- Reorganización aprobada por Jorge (16 nov 2026), estilo Material 3 / "estilo Mornye" (skill nueva-pwa, paso 5):
+  encabezado con volver al portal, logo a la derecha, título grande y "fecha · lugar"; reloj pequeño (hora de Colombia);
+  secciones Sede, Ronda (quien hace la ronda + lugar), Cilindros y Quien recibe con tarjetas agrupadas;
+  chips verdes "Listo" / ámbar "Falta firma"; sin tarjeta "Ronda en curso": lo que falta sale en un mensaje
+  emergente al tocar Registrar ("Entendido" / "Ir ahí"). Mismos campos, pasos, firmas y reporte JPG.
+- Antes (4 nov 2026) tenía el marco modernizado de Tanques e Inventario; desde el 16 nov usa el estándar visual nuevo.
 - Datos del teléfono con prefijo `cil:` (las apps de geol21.github.io comparten almacenamiento); las claves viejas se migran solas.
 - El reporte JPG debe quedar igual.
-- Todo en español, con el logo y los colores de la clínica (vino tinto). Letra: Plus Jakarta Sans.
+- Todo en español, con el logo de la clínica (`logo-crc.png` en pantalla; `logo.jpg` sigue en el reporte JPG).
+  Vino suave `#8E4953`, letra Google Sans Flex. Firmantes: WhatsApp a la vista y menú de tres puntos (otro celular, dar de baja).
 - Nada en Play Store; se distribuye solo por GitHub.
 
 ## Firmas con huella (nov 2026)

@@ -2,11 +2,12 @@
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Control de cilindros de gas</title>
-<meta name="theme-color" content="#FFFFFF">
+<meta name="theme-color" content="#FFF8F7">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--ease-out:cubic-bezier(0.23,1,0.32,1);--vino:#6A1B3A;--vino2:#4E1229;--rosa:#F7F1F3;--borde:#DCC8D0;--txt:#26181D;--ok:#2E7D5B;--aviso:#C77700;--mal:#B3261E}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -225,21 +226,7 @@ nav button{flex-direction:row;justify-content:flex-start;gap:12px;font-size:15px
 nav button:hover{background:var(--rosa)}
 nav button.on{background:var(--rosa);color:var(--vino);box-shadow:none}
 .wrap,.wrap.ancho{max-width:none;padding:22px 28px}
-#vNueva:not([style*="none"]){display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:18px;align-items:start}
-#vNueva .card,#vNueva .add{margin-bottom:0}
-#vNueva>.card:nth-child(1){grid-column:span 3;align-self:stretch;display:flex;align-items:center}
-#vNueva>.card:nth-child(1) .reloj{width:100%;flex-direction:column;gap:6px;font-size:18px}
-#vNueva>.card:nth-child(2){grid-column:span 9}
-#vNueva>.card:nth-child(2){display:grid;grid-template-columns:minmax(260px,1fr) 2fr;column-gap:18px}
-#vNueva>.card:nth-child(2) h2{grid-column:1/-1}
-#vNueva>.card:nth-child(2) .f label{margin-top:0}
-#lista{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:18px;align-items:start}
-#lista .card{margin:0}
-#vNueva>.add{grid-column:1/-1}
-#vNueva>.card:nth-child(5),#vNueva>.card:nth-child(6){grid-column:span 6}
-#vNueva>.falta{grid-column:span 8;margin:0;align-self:center}
-#vNueva>.reg{grid-column:span 4}
-#vNueva>.desc{grid-column:-5/-1;margin-top:0}
+/* (acomodo de PC de la ronda: ver "Reorganización como el bosquejo") */
 .hgrid{gap:18px}
 .hcol{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;align-content:start;padding:12px}
 .hcol h3,.hcol .vacio{grid-column:1/-1;margin:0}
@@ -248,25 +235,188 @@ nav button.on{background:var(--rosa);color:var(--vino);box-shadow:none}
 button:not(:disabled),a{cursor:pointer}
 .chip:hover,.seg button:hover{border-color:var(--vino)}
 }
+
+/* ---------- Estándar visual (Material 3, estilo Mornye) – 16 nov 2026 ----------
+   Solo cambia la apariencia: mismos campos, pasos y flujo. */
+:root{--vino:#8E4953;--vino2:#72333F;--rosa:#FFD9DD;--borde:#D8C2C4;--txt:#22191A;--fondo:#FFF8F7;--tarjeta:#F8ECEC;--tarjeta2:#F0DEDF;--sec2:#534345;--cont:#3B0713;--m3:cubic-bezier(.2,0,0,1);--m3in:cubic-bezier(.05,.7,.1,1)}
+body{font-family:'Google Sans Flex','Roboto Flex',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--fondo)}
+header{background:var(--fondo);border-bottom:0;padding:calc(14px + env(safe-area-inset-top)) 16px 4px}
+header img{border:0;padding:0;background:none;width:48px;height:48px}
+header h1{font-size:22px;font-weight:700;color:var(--txt);letter-spacing:-.2px}
+header p{color:var(--sec2);font-size:13.5px}
+.card,.progreso,.hcol{background:var(--tarjeta);border:0;border-radius:28px;box-shadow:none}
+.card{padding:18px 20px}
+.card h2{font-size:15px;font-weight:600;color:var(--vino)}
+.progreso{padding:16px 20px}
+.progreso .bar{background:var(--rosa);height:8px}
+.progreso small,.progreso b span,.topbar .tt small,.nota,.ini-nota,.opc small,.fir small{color:var(--sec2)}
+label,.lab{color:var(--sec2);font-weight:500}
+input,select,textarea{background:#fff;border:1px solid var(--borde);border-radius:16px}
+input:focus,select:focus,textarea:focus{border-color:var(--vino);box-shadow:0 0 0 3px rgba(142,73,83,.15)}
+select:disabled{background:var(--tarjeta2);color:#857374}
+.seg{background:var(--fondo);border-radius:28px;padding:6px;gap:6px}
+.seg button{border:0;border-radius:24px;background:transparent;font-weight:600;transition:background 350ms var(--m3),color 350ms var(--m3),transform 150ms var(--ease-out)}
+.seg button.on{background:var(--vino);color:#fff}
+.seg.bad{box-shadow:inset 0 0 0 2px var(--mal)}
+.chip{background:var(--fondo);border:1px solid var(--borde);border-radius:20px;font-weight:500;transition:background 350ms var(--m3),color 350ms var(--m3),border-color 350ms var(--m3),transform 150ms var(--ease-out)}
+.chip.on{background:var(--vino);border-color:var(--vino);color:#fff}
+.sug .chip{background:#fff}
+.item-h b{background:var(--rosa);color:var(--cont);font-weight:700}
+.add{border:0;background:var(--rosa);color:var(--cont);border-radius:28px;min-height:56px;font-weight:600}
+.reg{border-radius:28px;min-height:56px;font-weight:600}
+.desc{border:1px solid var(--borde);border-radius:28px;background:transparent}
+.lim,.estado button{border-radius:20px;border-width:1px}
+.estado button.sec{background:var(--rosa);border-color:var(--rosa);color:var(--cont)}
+.estado .pt{border-radius:16px}
+canvas.firma{border:1.5px dashed #B9A0A4;border-radius:16px}
+.opc{background:var(--fondo);border:0;border-radius:16px;transition:background 350ms var(--m3),transform 150ms var(--ease-out)}
+.opc.on{background:var(--rosa)}
+.opc i{border-color:#857374}
+.tag{border-radius:14px}.tag.hu{background:var(--rosa);color:var(--cont)}
+.resu .ed,.invlink{color:var(--vino)}
+.ini-go,.fbtn{border-radius:28px;font-weight:600}
+.ini-ok,.ini-av{border-radius:16px}
+.ini-acc button{border-radius:20px;color:var(--cont)}
+.hcol{padding:12px}
+.hcol h3{background:var(--rosa);color:var(--cont);border-radius:20px}
+.hcol h3 span{background:#fff;color:var(--cont)}
+.hit{background:var(--fondo);border:0;border-radius:16px}
+.hit.pend{background:#FFF3DC;border:0}
+.hit a,.hit button{border-radius:20px}.hit button.sec{background:var(--rosa);color:var(--cont)}
+.hinfo button{background:var(--rosa);color:var(--cont);border-radius:16px}
+.modal .box{background:var(--fondo);border-radius:28px}
+.modal a,.modal button{border-radius:20px}
+.modal a.sec,.modal button{background:var(--rosa);color:var(--cont)}
+#ingreso img{border-radius:0}
+.fir{border-bottom-color:var(--tarjeta2)}
+.fir .av{background:var(--rosa);color:var(--cont)}
+.fir .ac a,.fir .ac button{border:1px solid var(--borde)}
+.fbtn.sec{border-width:1px}
+/* Encabezado del celular igual al bosquejo aprobado: volver a la izquierda, logo a la derecha, título grande */
+@media (max-width:1023px){header{display:block;padding:calc(20px + env(safe-area-inset-top)) 16px 8px}}
+header .hrow{display:flex;align-items:center;justify-content:space-between}
+header .volver{width:48px;height:48px;border-radius:24px;background:var(--tarjeta2);color:var(--txt);display:flex;align-items:center;justify-content:center;transition:transform 150ms var(--ease-out)}
+header .volver:active{transform:scale(.94)}
+header .volver .i{width:24px;height:24px}
+header img{width:48px;height:48px}
+header h1{margin:28px 8px 6px;font-size:34px;line-height:42px;font-weight:700;letter-spacing:-.3px;color:var(--txt)}
+header p{margin:0 8px;font-size:15px;line-height:22px;color:var(--sec2)}
+/* Barra de navegación del celular: pastilla detrás del ícono activo */
+nav{background:var(--tarjeta);border-top:0}
+nav button{color:var(--sec2);font-weight:500;font-size:12px;padding:12px 4px 14px;gap:4px}
+nav button .i{width:24px;height:24px;padding:4px 20px;box-sizing:content-box;border-radius:16px;transition:background 350ms var(--m3),padding 350ms var(--m3)}
+nav button.on{color:var(--txt);font-weight:700;box-shadow:none}
+nav button.on .i{background:var(--rosa);color:var(--cont)}
+/* Entrada suave de las tarjetas al abrir cada vista */
+@keyframes sube{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.wrap>.card,.wrap>.add,.progreso,.hcol{animation:sube 450ms var(--m3in) both}
+.wrap>:nth-child(2){animation-delay:50ms}.wrap>:nth-child(3){animation-delay:100ms}.wrap>:nth-child(4){animation-delay:150ms}.wrap>:nth-child(5){animation-delay:200ms}.wrap>:nth-child(6){animation-delay:250ms}
+@media (prefers-reduced-motion:reduce){.wrap>.card,.wrap>.add,.progreso,.hcol{animation:none}}
+/* PC: menú lateral con pastillas */
+@media (min-width:1024px){
+ nav{background:var(--tarjeta);border-right:0;padding:20px 12px}
+ nav button{font-size:15px;font-weight:500;padding:14px 18px;border-radius:28px;color:var(--sec2);gap:14px}
+ nav button .i{padding:0;background:none!important;width:22px;height:22px}
+ nav button:hover{background:var(--tarjeta2)}
+ nav button.on{background:var(--rosa);color:var(--cont);font-weight:700}
+ .marca img{border:0;padding:0;background:none;width:48px;height:48px}
+ .marca b{color:var(--txt);font-weight:700}
+ .topbar h2{font-weight:700;letter-spacing:-.3px;font-size:28px}
+ .chip:hover,.seg button:hover{border-color:var(--vino)}
+ .seg button:not(.on):hover{background:var(--tarjeta2)}
+}
+
+/* ---------- Reorganización como el bosquejo aprobado (16 nov 2026) ---------- */
+.progreso{display:none!important}
+.falta{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+#vNueva section{margin-bottom:22px}
+.sec{margin:0 8px 12px;font-size:15px;font-weight:600;color:var(--vino);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.grupo{display:flex;flex-direction:column;gap:3px}
+.grupo>.card{margin:0;border-radius:6px}
+.grupo>.card:first-child{border-top-left-radius:28px;border-top-right-radius:28px}
+.grupo>.card:last-child{border-bottom-left-radius:28px;border-bottom-right-radius:28px}
+.grupo>.card.saliendo:last-child{border-radius:6px}
+.card h2{font-size:17px;font-weight:500;color:var(--txt);margin-bottom:6px}
+#cRecibe h2,#cRealiza>h2{font-size:15px;color:var(--sec2)}
+.tag:empty{display:none}
+.tag.ok{background:#D3F0DC;color:#1B5E33}
+#vNueva .seg,#vFirm .seg{background:var(--tarjeta);padding:8px}
+#vFirm .seg{margin-bottom:22px}
+.reg.pend{opacity:1;background:#BE949A}
+.estado .hora{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:16px;background:var(--tarjeta);font-size:14px;font-weight:600;color:var(--txt);font-variant-numeric:tabular-nums;white-space:nowrap}
+.estado .hora .i{width:17px;height:17px;color:var(--vino)}
+/* Quien hace la ronda con huella: una fila como en el bosquejo */
+#cRealiza .linea{gap:16px}
+#cRealiza .linea .li{display:flex;color:var(--sec2)}#cRealiza .linea .li .i{width:24px;height:24px}
+#cRealiza .linea .lt{flex:1;min-width:0}#cRealiza .linea .lt b{display:block;font-size:17px;font-weight:500;color:var(--txt)}
+#cRealiza .linea .lt small{display:block;font-size:14px;font-weight:400;color:var(--sec2);margin-top:2px}
+#cRealiza.compacta{padding:18px 20px}
+#cRealiza.compacta .ini-ok{display:none}
+#cRealiza.compacta #ini{margin-top:0}#cRealiza.compacta #ini:not(:empty){margin-top:12px}
+/* Cilindro completo: ficha del gas, datos y chip Listo; tocar la fila lo abre */
+.item.cerrado{padding:14px 16px 14px 18px}
+.resu{position:relative;gap:14px}
+.resu .gt{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:none;background:var(--rosa);color:var(--cont)}
+.resu .gt.ai{background:#D3F0DC;color:#1B5E33}.resu .gt.n2{background:#DCE3F5;color:#1E2C4F}.resu .gt.co{background:#F6E0C4;color:#3F2D10}.resu .gt.op{background:#FFE8D6;color:#4A2310}
+.resu .rt b{font-size:16px;font-weight:500}.resu .rt small{font-size:13.5px;color:var(--sec2)}
+.resu .rn{width:auto;height:28px;border-radius:14px;padding:0 10px;gap:4px;font-size:13px;font-weight:600;background:#D3F0DC;color:#1B5E33}
+.resu .rn .i{width:15px;height:15px}
+.resu .ed{position:absolute;inset:-14px -16px -14px -18px;opacity:0;min-height:0}
+.add{display:flex;align-items:center;justify-content:center;gap:8px;margin:10px 0 0}
+.add .i{width:20px;height:20px}
+/* Botón de registrar siempre a mano, encima de la barra */
+.acc{position:sticky;bottom:calc(88px + env(safe-area-inset-bottom));z-index:4;padding:8px 0;margin:0 -2px}
+.acc .reg{box-shadow:0 0 0 8px var(--fondo)}
+.desc{margin-top:6px}
+/* Mensaje emergente con lo que falta */
+.snack{position:fixed;left:16px;right:16px;bottom:calc(164px + env(safe-area-inset-bottom));z-index:22;background:#382E2F;color:#FCEBEC;border-radius:16px;padding:14px 8px 6px 16px;opacity:0;transform:translateY(16px);pointer-events:none;transition:opacity 200ms var(--m3),transform 450ms var(--m3in);max-width:560px;margin:auto}
+.snack.on{opacity:1;transform:none;pointer-events:auto}
+.snack b{display:flex;align-items:center;gap:8px;font-size:15px}.snack b .i{width:20px;height:20px;color:#FFB3BB}
+.snack p{margin:4px 8px 0 28px;font-size:14px;line-height:1.45;color:#E8D5D7}
+.snack .sa{display:flex;justify-content:flex-end;gap:4px;margin-top:4px}
+.snack .sa button{border:0;background:none;color:#FFB3BB;font:inherit;font-size:14px;font-weight:700;min-height:44px;padding:0 12px;border-radius:20px}
+@media (prefers-reduced-motion:reduce){.snack{transform:none;transition:opacity 150ms}}
+/* Firmantes: cada persona en su tarjeta agrupada, menú de tres puntos */
+.sec2{margin-top:6px}
+.fir{gap:14px;align-items:flex-start;padding:16px 16px 16px 18px;border-bottom:0}
+.fir .av{width:44px;height:44px;font-size:14px}
+.fir b{font-size:16.5px;font-weight:500}.fir .tag{margin-top:8px!important}
+.fir .ac{flex-direction:column;align-items:center}
+.fir .ac a.w{background:#D3F0DC;border:0}
+.mas{position:relative}
+.mas summary{list-style:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--sec2);background:var(--fondo);cursor:pointer}
+.mas summary::-webkit-details-marker{display:none}
+.mas summary .i{width:20px;height:20px}
+.mas .menu{position:absolute;right:0;top:46px;z-index:8;min-width:220px;background:#fff;border-radius:16px;padding:6px;box-shadow:0 6px 24px rgba(34,25,26,.16)}
+.mas .menu button{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;border:0;background:none;border-radius:12px;padding:0 12px;font:inherit;font-size:15px;font-weight:500;color:var(--txt);text-align:left}
+.mas .menu button:hover{background:var(--tarjeta)}.mas .menu button.mal{color:var(--mal)}.mas .menu .i{width:20px;height:20px}
+.fbtn{display:flex;gap:8px}
+/* PC: dos columnas (datos a la izquierda, cilindros a la derecha) */
+@media (min-width:1024px){
+ #vNueva:not([style*="none"]){display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);grid-template-areas:"sede cil" "ronda cil" "rec cil" "acc acc" "desc desc";column-gap:32px;align-items:start;max-width:1200px}
+ #vNueva section{margin-bottom:24px}
+ .sec-sede{grid-area:sede}.sec-ronda{grid-area:ronda}.sec-cil{grid-area:cil}.sec-rec{grid-area:rec}
+ #vNueva>.acc{grid-area:acc;position:static;justify-self:end;width:min(420px,100%);padding:0}
+ #vNueva>.acc .reg{box-shadow:none}
+ #vNueva>.desc{grid-area:desc;justify-self:end;width:min(420px,100%)}
+ .snack{bottom:28px;left:calc(220px + 28px);right:28px}
+ .mas summary:hover{background:var(--tarjeta2)}
+}
 </style></head><body>
-<header><img src="logo.jpg" alt=""><div><h1>Control de cilindros de gas</h1><p>Clínica Reina Catalina · Ronda diaria</p></div></header>
+<header><div class="hrow"><a class="volver" href="https://geol21.github.io/" aria-label="Volver al portal de apps"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg></a><img src="logo-crc.png" alt="Clínica Reina Catalina"></div><h1 id="hTit">Ronda de cilindros</h1><p id="hSub">Clínica Reina Catalina</p></header>
 <div class="topbar" id="topbar"><div class="tt"><h2 id="tituloVista">Nueva ronda</h2><small>Ronda diaria de cilindros</small></div>
 <div class="progreso" id="progreso" role="status"><b>Ronda en curso<span id="pgN"></span></b><small id="pgTxt"></small><div class="bar"><i id="pgBar"></i></div></div>
-<div class="estado" id="estBox"><div class="pt"><span class="ico" id="dot"></span><span id="estTxt">…</span></div><div style="display:flex;gap:6px"><button class="sec" id="btnInst" style="display:none">Instalar</button><button id="btnSync" style="display:none" onclick="sincronizar()">Enviar ahora</button></div></div>
+<div class="estado" id="estBox"><div class="pt"><span class="ico" id="dot"></span><span id="estTxt">…</span></div><div style="display:flex;gap:6px;align-items:center"><span class="hora" aria-label="Hora de Colombia"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span id="fHora"></span></span><button class="sec" id="btnInst" style="display:none">Instalar</button><button id="btnSync" style="display:none" onclick="sincronizar()">Enviar ahora</button></div></div>
 </div>
 
 <div id="vNueva" class="wrap">
-  <div class="card"><div class="reloj"><span id="fFecha"></span><span id="fHora"></span></div><div id="ini"></div></div>
-  <div class="card"><h2>Datos de la ronda</h2>
-    <div class="f"><span class="lab" id="sedeLab" style="margin-top:0">Sede</span>
-    <div class="seg" id="sedeBtns" role="group" aria-labelledby="sedeLab"></div><input type="hidden" id="sede"></div>
-    <div class="f"><span class="lab" id="lugarLab">Lugar donde se hace la ronda</span>
-    <div class="chips" id="lugarC" role="group" aria-labelledby="lugarLab"></div>
-    <input id="lugar" class="otro" autocomplete="off" aria-labelledby="lugarLab" placeholder="Escribe el lugar"></div>
-  </div>
-  <div id="lista"></div>
-  <button class="add" onclick="addItem()">Agregar cilindro</button>
-  <div class="card" id="cRealiza"><div class="linea"><span id="lRealiza"></span><span class="tag hu" id="lRealizaT"></span></div><h2>Quien hace la ronda<span class="tag" id="t1"></span></h2>
+  <span id="fFecha" hidden></span>
+  <section class="sec-sede"><p class="sec" id="sedeLab">Sede</p>
+    <div class="f"><div class="seg" id="sedeBtns" role="group" aria-labelledby="sedeLab"></div><input type="hidden" id="sede"></div></section>
+  <section class="sec-ronda"><p class="sec">Ronda</p>
+  <div class="grupo">
+  <div class="card" id="cRealiza"><div class="linea"><span class="li"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18.9 7a8 8 0 0 1 1.1 4v1a10 10 0 0 0 2 6"/><path d="M4 11a8 8 0 0 1 12-6.9"/><path d="M8 11a4 4 0 0 1 8 0v1a10 10 0 0 0 2 6"/><path d="M12 11v2a14 14 0 0 0 2.5 8"/><path d="M8 15a18 18 0 0 0 1.8 6"/><path d="M4.9 19a22 22 0 0 1-.9-7v-1"/></svg></span><div class="lt"><b>Quien hace la ronda</b><small id="lRealiza"></small></div><span class="tag hu" id="lRealizaT"></span></div>
+    <h2>Quien hace la ronda<span class="tag" id="t1"></span></h2>
     <div class="f"><label for="realiza" style="margin-top:0">Nombre de quien hace la ronda</label>
     <select id="realiza" onchange="onRealiza()" disabled><option value="">Primero elige la sede</option></select>
     <input id="realizaOtro" class="otro" autocomplete="off" placeholder="Escribe el nombre completo"></div>
@@ -274,8 +424,17 @@ button:not(:disabled),a{cursor:pointer}
      <button type="button" class="opc" data-m="huella" onclick="setModo(1,'huella')"><i></i><span><b>Con mi huella</b><small>Al registrar la ronda, tu celular te pide la huella.</small></span></button>
      <button type="button" class="opc" data-m="dedo" onclick="setModo(1,'dedo')"><i></i><span><b>Con el dedo</b><small>Firmas aquí, en el recuadro.</small></span></button></div></div>
     <div id="c1box"><div class="f"><span class="lab">Firma de quien hace la ronda</span><canvas class="firma" id="c1" aria-label="Firma de quien hace la ronda"></canvas></div>
-    <button class="lim" onclick="pads.c1.borrar()">Borrar firma</button></div></div>
-  <div class="card"><h2>Quien recibe<span class="tag" id="t2"></span></h2>
+    <button class="lim" onclick="pads.c1.borrar()">Borrar firma</button></div>
+    <div id="ini"></div></div>
+  <div class="card" id="cLugar"><h2><span id="lugarLab">Lugar</span><span class="tag" id="tL"></span></h2>
+    <div class="f"><div class="chips" id="lugarC" role="group" aria-labelledby="lugarLab"></div>
+    <input id="lugar" class="otro" autocomplete="off" aria-labelledby="lugarLab" placeholder="Escribe el lugar"></div></div>
+  </div></section>
+  <section class="sec-cil"><p class="sec">Cilindros</p>
+  <div id="lista" class="grupo"></div>
+  <button class="add" onclick="addItem()"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Agregar cilindro</button></section>
+  <section class="sec-rec"><p class="sec">Quien recibe</p>
+  <div class="card" id="cRecibe"><h2>Nombre y firma<span class="tag" id="t2"></span></h2>
     <div class="f"><label for="recibeSel" style="margin-top:0" id="recibeLab">Nombre de quien recibe</label>
     <select id="recibeSel" onchange="onRecibe()" style="display:none" aria-labelledby="recibeLab"></select>
     <input id="recibe" autocomplete="off" aria-labelledby="recibeLab"></div>
@@ -285,9 +444,10 @@ button:not(:disabled),a{cursor:pointer}
     <div id="c2box"><div class="f"><span class="lab">Firma de quien recibe</span><canvas class="firma" id="c2" aria-label="Firma de quien recibe"></canvas></div>
     <button class="lim" onclick="pads.c2.borrar()">Borrar firma</button>
     <button type="button" class="invlink" id="invRecibe" style="display:none" onclick="invitarDesdeRecibe()"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18.9 7a8 8 0 0 1 1.1 4v1a10 10 0 0 0 2 6"/><path d="M4 11a8 8 0 0 1 12-6.9"/><path d="M8 11a4 4 0 0 1 8 0v1a10 10 0 0 0 2 6"/><path d="M12 11v2a14 14 0 0 0 2.5 8"/><path d="M8 15a18 18 0 0 0 1.8 6"/><path d="M4.9 19a22 22 0 0 1-.9-7v-1"/></svg>Registrar su huella para la próxima</button>
-    <div class="nota" id="invNota" style="display:none;clear:both">Para que firme con huella la próxima vez, pídele al administrador que lo invite.</div></div></div>
+    <div class="nota" id="invNota" style="display:none;clear:both">Para que firme con huella la próxima vez, pídele al administrador que lo invite.</div></div>
+  </div></section>
   <div class="falta" id="falta" role="status"></div>
-  <button class="reg" id="btnReg" onclick="registrar()">Registrar ronda</button>
+  <div class="acc"><button class="reg" id="btnReg" onclick="registrar()">Registrar ronda</button></div>
   <button type="button" class="desc" id="btnDesc" onclick="descartarRonda()"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 002 2h8a2 2 0 002-2l1-12M9 7V4h6v3"/></svg>Descartar ronda</button>
 </div>
 
@@ -295,12 +455,12 @@ button:not(:disabled),a{cursor:pointer}
  <div class="hpie"><button onclick="ver('F')"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18.9 7a8 8 0 0 1 1.1 4v1a10 10 0 0 0 2 6"/><path d="M4 11a8 8 0 0 1 12-6.9"/><path d="M8 11a4 4 0 0 1 8 0v1a10 10 0 0 0 2 6"/><path d="M12 11v2a14 14 0 0 0 2.5 8"/><path d="M8 15a18 18 0 0 0 1.8 6"/><path d="M4.9 19a22 22 0 0 1-.9-7v-1"/></svg>Firmas con huella</button></div></div>
 <div id="vFirm" class="wrap" style="display:none"><div id="firm"></div></div>
 
-<nav><div class="marca"><img src="logo.jpg" alt=""><b>Control de<br>cilindros de gas</b></div><button id="nN" class="on" onclick="ver('N')"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nueva ronda</button><button id="nH" onclick="ver('H')"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Historial</button><button id="nF" onclick="ver('F')" style="display:none"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18.9 7a8 8 0 0 1 1.1 4v1a10 10 0 0 0 2 6"/><path d="M4 11a8 8 0 0 1 12-6.9"/><path d="M8 11a4 4 0 0 1 8 0v1a10 10 0 0 0 2 6"/><path d="M12 11v2a14 14 0 0 0 2.5 8"/><path d="M8 15a18 18 0 0 0 1.8 6"/><path d="M4.9 19a22 22 0 0 1-.9-7v-1"/></svg>Firmantes</button><div class="pie">Clínica Reina Catalina<br>Ronda diaria</div></nav>
+<nav><div class="marca"><img src="logo-crc.png" alt=""><b>Control de<br>cilindros de gas</b></div><button id="nN" class="on" onclick="ver('N')"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nueva ronda</button><button id="nH" onclick="ver('H')"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Historial</button><button id="nF" onclick="ver('F')" style="display:none"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18.9 7a8 8 0 0 1 1.1 4v1a10 10 0 0 0 2 6"/><path d="M4 11a8 8 0 0 1 12-6.9"/><path d="M8 11a4 4 0 0 1 8 0v1a10 10 0 0 0 2 6"/><path d="M12 11v2a14 14 0 0 0 2.5 8"/><path d="M8 15a18 18 0 0 0 1.8 6"/><path d="M4.9 19a22 22 0 0 1-.9-7v-1"/></svg>Firmantes</button><div class="pie">Clínica Reina Catalina<br>Ronda diaria</div></nav>
 
 <div class="modal" id="modal"><div class="box"><h3 id="mTit"></h3><p id="mTxt"></p>
 <div id="mFirmas"></div><a id="mJpg" target="_blank" rel="noopener" style="display:none">Ver JPG en Drive</a><a id="mDown" class="sec">Descargar JPG</a><button onclick="nueva()">Nueva ronda</button></div></div>
 
-<div class="modal" id="ingreso"><div class="box"><img src="logo.jpg" alt=""><h3>Código de acceso</h3>
+<div class="modal" id="ingreso"><div class="box"><img src="logo-crc.png" alt=""><h3>Código de acceso</h3>
 <p id="ingTxt">Escribe el código que te dio el administrador. Solo se pide una vez en este celular y se necesita internet.</p>
 <input id="codigo" type="password" autocomplete="off" placeholder="Código de acceso">
 <button class="go" id="btnIng" onclick="entrar()">Entrar</button><div class="err" id="ingErr"></div></div></div>
@@ -312,6 +472,7 @@ button:not(:disabled),a{cursor:pointer}
 <button class="si" onclick="descartarYa()">Sí, descartar</button><button onclick="cerrarModal('descartar')">Seguir con la ronda</button></div></div>
 <div class="modal" id="modalErr"><div class="box"><h3 class="mal" id="eTit"></h3><p id="eTxt"></p><button onclick="cerrarModal('modalErr')">Entendido</button></div></div>
 <div class="toast" id="toast"></div>
+<div class="snack" id="snack" role="alert" aria-live="assertive"><b><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 17h.01"/></svg>Te falta para registrar</b><p id="snTxt"></p><div class="sa"><button type="button" onclick="cerrarSnack()">Entendido</button><button type="button" onclick="irFalta()">Ir ahí</button></div></div>
 
 <script src="config.js"></script>
 <script src="qrcode.js"></script>
@@ -355,7 +516,7 @@ function ahoraBogota(){const d=new Date();
  const h=+p.hour,h12=h%12||12,ap=h>=12?'PM':'AM',r=[...crypto.getRandomValues(new Uint8Array(2))].map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,3);
  return{fecha:`${p.day}/${p.month}/${p.year}`,hora:`${String(h12).padStart(2,'0')}:${p.minute} ${ap}`,id:`R-${p.year}${p.month}${p.day}-${p.hour}${p.minute}${p.second}-${r}`};}
 function reloj(){const d=new Date();$('fFecha').textContent=d.toLocaleDateString('es-CO',{weekday:'short',day:'2-digit',month:'short',year:'numeric',timeZone:ZONA});
- $('fHora').textContent=d.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit',timeZone:ZONA});}
+ $('fHora').textContent=d.toLocaleTimeString('es-CO',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:ZONA}).replace(/a\.?\s?m\.?/i,'a. m.').replace(/p\.?\s?m\.?/i,'p. m.');}
 setInterval(reloj,15000);reloj();
 
 /* ---------- Servidor (Apps Script) ---------- */
@@ -412,7 +573,8 @@ const nombreFijo=()=>{const i=inicioAct(),y=yoDisp();return i?i.nombre:y?y.nombr
 const firmaConHuella=()=>{const y=yoDisp();return !!(y&&$('realiza').value&&$('realiza').value.toLowerCase()===y.nombre.toLowerCase());};
 function revisarRealiza(){const y=yoDisp(),nom=nombreRealiza(),mio=!!(y&&nom&&nom.toLowerCase()===y.nombre.toLowerCase());
  const cR=$('cRealiza');cR.classList.toggle('compacta',!!y);
- if(y){const i=inicioAct();$('lRealiza').textContent='Hace la ronda: '+y.nombre;$('lRealizaT').innerHTML=HU_I+(i?'Huella al iniciar':'Firma con huella');}
+ if(y){const i=inicioAct(),t=$('lRealizaT');$('lRealiza').textContent=y.nombre+(i?' · firmó con huella a las '+horaCorta(i.t):' · firma con huella al registrar');
+  t.className='tag'+(i?' ok':' hu');t.innerHTML=i?IC.ok+'Listo':HU_I+'Con huella';}
  if(firmaInicio()||firmaConHuella()){$('modo1').style.display='none';$('c1box').style.display='none';pintarInicio();return;}
  $('modo1').style.display=mio?'':'none';if(mio&&!modo[1])modo[1]='huella';pintarModo(1);pintarInicio();}
 const huella1=()=>$('modo1').style.display!=='none'&&modo[1]==='huella';
@@ -517,7 +679,7 @@ function ponerHabitual(){const s=$('sede').value,h=(ls.get('habitual',{})||{})[s
 
 /* ---------- Cilindros ---------- */
 function addItem(quieto){const d=document.createElement('div');d.className='card item';
- d.innerHTML=`<div class="resu"><span class="rn">${IC.ok}</span><div class="rt"><b></b><small></small></div><button type="button" class="ed" onclick="abrir(this)">Editar</button></div>
+ d.innerHTML=`<div class="resu"><span class="gt"></span><div class="rt"><b></b><small></small></div><span class="rn">${IC.ok}Listo</span><button type="button" class="ed" onclick="abrir(this)">Editar</button></div>
  <div class="det"><div class="item-h"><b class="num"></b><button type="button" class="del" onclick="delItem(this)">Quitar</button></div>
  <div class="f"><span class="lab">Tipo de gas</span><div class="chips gasC" role="group" aria-label="Tipo de gas">${GASES.map(g=>`<button type="button" class="chip" data-v="${g}" aria-pressed="false" onclick="elegirGas(this)">${IC.ok}${g}</button>`).join('')}</div><input type="hidden" class="gas"></div>
  <div class="fila"><div class="f"><label>Serial del cilindro<input class="serial" autocomplete="off" autocapitalize="characters" spellcheck="false" style="margin-top:6px"></label></div>
@@ -556,8 +718,10 @@ function elegirGas(b){setGas(b.closest('.item'),b.dataset.v);guardarBorrador();a
 function ubicOtra(s){const i=s.closest('.item').querySelector('.ubicOtra'),o=s.value==='Otra';i.style.display=o?'block':'none';if(o)i.focus();else i.value='';}
 /* Un cilindro completo se resume en una línea; "Editar" lo vuelve a abrir. */
 function completo(e){const q=x=>e.querySelector(x).value.trim(),u=q('.ubic');return !!(q('.gas')&&q('.serial')&&q('.presion')&&u&&(u!=='Otra'||q('.ubicOtra')));}
-function pintaResu(e,n){const q=x=>e.querySelector(x).value.trim(),u=q('.ubic');
- e.querySelector('.rt b').textContent=n+' · '+q('.gas')+' · '+q('.serial');
+const GAS_COD={'Oxígeno':['O₂','o2'],'Aire Medicinal':['Aire','ai'],'Nitrógeno':['N₂','n2'],'Dioxicarbomed':['CO₂','co'],'Oxígeno portátil':['O₂ P','op']};
+function pintaResu(e,n){const q=x=>e.querySelector(x).value.trim(),u=q('.ubic'),gc=GAS_COD[q('.gas')]||['?',''],gt=e.querySelector('.gt');
+ if(gt){gt.textContent=gc[0];gt.className='gt '+gc[1];}
+ e.querySelector('.rt b').textContent=q('.gas')+' · '+q('.serial');
  e.querySelector('.rt small').textContent=q('.presion')+' '+unidadDe(q('.gas'))+' · '+(u==='Otra'?q('.ubicOtra'):u)+(q('.obs')?' · con observación':'');}
 function cerrarCompletos(menos){document.querySelectorAll('.item').forEach((e,i)=>{if(e!==menos&&completo(e)){pintaResu(e,i+1);e.classList.add('cerrado');}});}
 function abrir(b){const e=b.closest('.item');cerrarCompletos(e);e.classList.remove('cerrado');e.scrollIntoView({behavior:SUAVE,block:'start'});}
@@ -586,9 +750,11 @@ function faltantes(){const F=[],add=(t,el,m)=>F.push({t,el,m});
 function limpiaErr(){document.querySelectorAll('#vNueva .bad').forEach(e=>e.classList.remove('bad'));document.querySelectorAll('#vNueva .emsg').forEach(e=>e.remove());}
 function ponErr(el,msg){el.classList.add('bad');const p=el.closest('.f')||el.parentNode;if(p.querySelector('.emsg'))return;
  const m=document.createElement('div');m.className='emsg';m.innerHTML=IC.al+'<span></span>';m.lastChild.textContent=msg;p.appendChild(m);}
-function actualizar(){if(!pads.c1||!pads.c2)return[];const F=faltantes(),nom=F.filter(x=>x.t).map(x=>x.t),fa=$('falta');
+function actualizar(){pintarEncabezado();if(!pads.c1||!pads.c2)return[];const F=faltantes(),nom=F.filter(x=>x.t).map(x=>x.t),fa=$('falta');
  [['t1','c1',huella1()||firmaInicio(),firmaInicio()?'Huella al iniciar':'Firma con huella'],['t2','c2',huella2(),'Firmará en su celular']].forEach(([t,c,h,txt])=>{const v=!h&&pads[c].vacio(),el=$(t),clave=h?'h'+txt:v?'0':'1',antes=el.dataset.v;el.dataset.v=clave;
-  if(antes===clave)return;el.className='tag'+(h?' hu':v?'':' ok')+(clave!=='0'&&antes==='0'?' salta':'');el.innerHTML=(h?HU_I:v?IC.al:IC.ok)+(h?txt:v?'Falta firma':'Firmado');});
+  if(antes===clave)return;el.className='tag'+(h?' hu':v?'':' ok')+(clave!=='0'&&antes==='0'?' salta':'');el.innerHTML=(h?HU_I:v?IC.al:IC.ok)+(h?txt:v?'Falta firma':'Listo');});
+ const lg=!!$('lugar').value.trim(),tL=$('tL');tL.className='tag'+(lg?' ok':'');tL.innerHTML=lg?IC.ok+'Listo':'';tL.style.display=lg?'':'none';
+ if(!F.length)cerrarSnack();
  $('btnDesc').classList.toggle('ver',formListo&&hayAlgo());
  const bR=$('btnReg');if(!bR.disabled)bR.textContent=firmaHuella()?'Revisar y registrar':'Registrar ronda';
  pintarInv();
@@ -651,7 +817,15 @@ addEventListener('pagehide',guardarYa);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)guardarYa();else{pads.c1.medir();pads.c2.medir();alVolver();}});
 
 /* ---------- Vistas ---------- */
-function tituloVentana(v){const n=v==='H'?'Historial':v==='F'?'Firmantes':'Nueva ronda';$('tituloVista').textContent=n;
+/* Encabezado del celular: título de la vista y, en la ronda, fecha y lugar */
+let vistaAct='N';
+function pintarEncabezado(){const t=$('hTit'),p=$('hSub');if(!t||!p)return;
+ if(vistaAct!=='N'){t.textContent=vistaAct==='H'?'Historial':'Firmantes';p.textContent='Clínica Reina Catalina · Control de cilindros';return;}
+ t.textContent='Ronda de cilindros';
+ let f=new Date().toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long',timeZone:ZONA});f=f.replace(',','');f=f.charAt(0).toUpperCase()+f.slice(1);
+ const ch=document.querySelector('#lugarC .chip.on:not(.otroC)'),l=ch?ch.textContent.trim():($('lugar')?$('lugar').value.trim():'');
+ p.textContent=l?f+' · '+l:f;}
+function tituloVentana(v){const n=v==='H'?'Historial':v==='F'?'Firmantes':'Nueva ronda';$('tituloVista').textContent=n;vistaAct=v;pintarEncabezado();
  const app=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;document.title=app?n:'Cilindros · '+n;}
 function ver(v){$('vNueva').style.display=v==='N'?'block':'none';document.body.classList.toggle('ver-h',v!=='N');tituloVentana(v);$('vHist').style.display=v==='H'?'block':'none';
  $('vFirm').style.display=v==='F'?'block':'none';
@@ -659,10 +833,28 @@ function ver(v){$('vNueva').style.display=v==='N'?'block':'none';document.body.c
  if(v==='H')cargarHist();else if(v==='F')pintarFirm();else{pads.c1.medir();pads.c2.medir();}}
 
 /* ---------- Registrar: primero se guarda en el celular, luego se envía ---------- */
+/* Mensaje emergente: dice qué falta y lleva al primer campo pendiente */
+let faltaPri=null;
+function abrirSnack(F){const nom=F.filter(x=>x.t).map(x=>x.t);faltaPri=F.find(x=>x.el)||null;
+ $('snTxt').textContent=(nom.length?nom.join(', '):'revisar lo marcado')+'.';$('snTxt').textContent=$('snTxt').textContent.charAt(0).toUpperCase()+$('snTxt').textContent.slice(1);
+ $('snack').classList.add('on');sonarFalta();clearTimeout(abrirSnack.t);abrirSnack.t=setTimeout(cerrarSnack,12000);}
+function cerrarSnack(){$('snack').classList.remove('on');}
+function irFalta(){cerrarSnack();const p=faltaPri;if(!p||!p.el)return;const it=p.el.closest('.item');if(it)abrir(it.querySelector('.ed')||it);
+ p.el.scrollIntoView({behavior:SUAVE,block:'center'});}
+/* Sonido al terminar la ronda (generado aquí: no necesita archivos ni internet) y vibración corta */
+let actx=null;
+function prepararSonido(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();}catch(e){}}
+function tono(notas,vol){try{if(!actx)return;const t0=actx.currentTime+.02;notas.forEach(([f,d,dur])=>{const o=actx.createOscillator(),g=actx.createGain();
+ o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,t0+d);g.gain.exponentialRampToValueAtTime(vol,t0+d+.02);g.gain.exponentialRampToValueAtTime(.0001,t0+d+dur);
+ o.connect(g);g.connect(actx.destination);o.start(t0+d);o.stop(t0+d+dur+.05);});}catch(e){}}
+function sonarListo(){tono([[784,0,.28],[1046.5,.13,.28],[1318.5,.26,.5]],.22);try{navigator.vibrate&&navigator.vibrate([50,60,90]);}catch(e){}}
+function sonarFalta(){tono([[659.3,0,.18],[523.3,.16,.32]],.18);try{navigator.vibrate&&navigator.vibrate(80);}catch(e){}}
+function sonarError(){tono([[330,0,.25],[247,.2,.4]],.2);try{navigator.vibrate&&navigator.vibrate(250);}catch(e){}}
 async function registrar(){
- intentado=true;const F=actualizar(),pri=F.find(x=>x.el);
- if(F.length){if(pri){const it=pri.el.closest('.item');if(it)it.classList.remove('cerrado');pri.el.scrollIntoView({behavior:SUAVE,block:'center'});}
-  toast('Completa lo marcado en rojo para registrar');return;}
+ prepararSonido();intentado=true;const F=actualizar(),pri=F.find(x=>x.el);
+ if(F.length){
+  abrirSnack(F);return;}
+ cerrarSnack();
  if(firmaHuella())return abrirConfirmar();
  return enviarRonda({});}
 /* Resumen con "Estoy de acuerdo": es la aprobación del contenido por quien hace la ronda */
@@ -676,7 +868,7 @@ function abrirConfirmar(){const i=inicioAct(),y=yoDisp(),its=[...document.queryS
  $('cSi').innerHTML=(viejo?HU_I+'Estoy de acuerdo · poner mi huella':IC.ok+'Estoy de acuerdo y registro');$('cSi').disabled=false;
  $('cErr').textContent=i&&viejo?'Pasó más de 1 h 30 min desde que iniciaste: confirma con tu huella.':'';$('cErr').style.color=viejo?'#8A5200':'';
  $('cDesp').style.display='none';abrirModal('confirmar');}
-async function confirmarRonda(){const b=$('cSi'),y=yoDisp();let i=inicioAct();if(!y)return cerrarModal('confirmar');
+async function confirmarRonda(){prepararSonido();const b=$('cSi'),y=yoDisp();let i=inicioAct();if(!y)return cerrarModal('confirmar');
  b.disabled=true;
  if(!i||Date.now()-i.t>MAX_RONDA){$('cErr').style.color='';$('cErr').textContent='Pon tu dedo cuando el celular lo pida…';
   try{const r=await retoParaHuella();const a=await Huella.firmar(r,y.llaves);i=Object.assign({fid:y.id,nombre:y.nombre},i||{},{t:Date.now(),aserto:a});ls.set('inicio',i);}
@@ -708,12 +900,12 @@ async function enviarRonda(opc){cerrarModal('confirmar');
 let modalId=null;
 async function modal(r,rec){modalId=rec.id;const t=$('mTit'),x=$('mTxt'),j=$('mJpg');j.style.display='none';t.className='';$('mFirmas').innerHTML='';
  const tit=(ic,tx)=>{t.innerHTML=ic+'<span></span>';t.lastChild.textContent=tx;};
- if(r==='guardada'){tit(IC.ok,'Ronda guardada');t.className='aviso';x.textContent='Guardada en este celular. Enviando al servidor…';}
+ if(r==='guardada'){sonarListo();tit(IC.ok,'Ronda guardada');t.className='aviso';x.textContent='Guardada en este celular. Enviando al servidor…';}
  else if(r.ok){tit(IC.ok.replace('class="i"','class="i dibuja"'),r.firmaRealiza==='inicio'?'Ronda registrada y firmada':'Ronda registrada');
   x.textContent=r.firmaRealiza==='inicio'?'Quedó firmada con tu huella'+(r.codigo?' (código '+r.codigo+')':'')+'. El JPG está en Drive y la ronda en el historial.':'La imagen JPG quedó guardada en Drive y la ronda en el historial.';const u=urlJpg(r.url);if(u){j.href=u;j.style.display='block';}
   if(r.pendientes){const fal=[r.pendientes.realiza&&r.pendientes.realiza.nombre,r.pendientes.recibe&&r.pendientes.recibe.nombre].filter(Boolean);
    x.textContent='La imagen JPG quedó guardada. Falta la firma con huella de '+fal.join(' y ')+'.';$('mFirmas').innerHTML=botonesPend(rec.id,r.pendientes);}}
- else if(r.error){tit(IC.al,'Ronda guardada, pero el servidor la rechazó');t.className='mal';x.textContent=r.error+' La ronda sigue guardada en este celular; avísale al administrador.';}
+ else if(r.error){sonarError();tit(IC.al,'Ronda guardada, pero el servidor la rechazó');t.className='mal';x.textContent=r.error+' La ronda sigue guardada en este celular; avísale al administrador.';}
  else{tit(IC.ok,'Ronda guardada en el celular');t.className='aviso';x.textContent='Aún no se pudo enviar (sin conexión o señal débil). Se enviará sola cuando haya internet. No borres los datos de la app hasta que desaparezca el aviso de pendientes.';}
  const d=$('mDown');d.href=rec.imagen;d.download='Ronda_'+rec.sede+'_'+rec.id+'.jpg';
  abrirModal('modal');}
@@ -836,13 +1028,15 @@ function pintarLista(){const L=FV.lista,yo=L.yo,admin=yo.rol==='Administrador',s
  const de=L.lista.filter(f=>f.sede===FV.sede||f.sede==='Todas'),cuenta=s=>L.lista.filter(f=>f.sede===s&&f.estado!=='De baja').length;
  const fila=f=>{const est=f.estado==='Activo'?`<span class="tag ok" style="margin-top:4px">${IC.ok}Huella activa${f.equipos>1?' · '+f.equipos+' equipos':''}</span>`:f.estado==='Invitado'?`<span class="tag" style="margin-top:4px">Invitado · no se ha registrado</span>`:`<span class="tag mal" style="margin-top:4px">De baja</span>`;
   const num=String(f.whatsapp||'').replace(/\D/g,''),wa=num?'https://wa.me/'+(num.length===10?'57'+num:num):'';
-  return `<div class="fir"${f.estado==='De baja'?' style="opacity:.55"':''}><div class="av">${esc(iniciales(f.nombre))}</div><div class="t"><b>${esc(f.nombre)}</b><small>${esc(f.rol!=='Firmante'?f.rol:f.cargo||'Firmante')}${f.rol!=='Firmante'&&f.cargo?' · '+esc(f.cargo):''}${num?' · '+esc(tel(num)):''}</small>${est}</div>
+  const mas=f.estado!=='De baja'?`<details class="mas"><summary aria-label="Más opciones para ${esc(f.nombre)}">${svg('<circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/>',2.4)}</summary><div class="menu">
+    <button onclick="this.closest('details').open=false;reinvitar('${esc(f.id)}',this)">${f.estado==='Invitado'?IC.sync+'Reenviar invitación':svg('<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 17h2"/>',2)+'Registrar otro celular'}</button>
+    ${admin&&f.id!==yo.id?`<button class="mal" onclick="this.closest('details').open=false;darBaja('${esc(f.id)}','${esc(f.nombre)}',this)">${svg('<path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>',2)}Dar de baja</button>`:''}</div></details>`:'';
+  return `<div class="card fir"${f.estado==='De baja'?' style="opacity:.6"':''}><div class="av">${esc(iniciales(f.nombre))}</div><div class="t"><b>${esc(f.nombre)}</b><small>${esc(f.rol!=='Firmante'?f.rol:f.cargo||'Firmante')}${f.rol!=='Firmante'&&f.cargo?' · '+esc(f.cargo):''}${num?' · '+esc(tel(num)):''}</small>${est}</div>
    <div class="ac">${wa&&f.estado!=='De baja'?`<a class="w" href="${esc(wa)}" target="_blank" rel="noopener" aria-label="Escribir por WhatsApp a ${esc(f.nombre)}">${WA_I}</a>`:''}
-   ${f.estado!=='De baja'?`<button aria-label="${f.estado==='Invitado'?'Reenviar invitación a ':'Registrar otro celular de '}${esc(f.nombre)}" title="${f.estado==='Invitado'?'Reenviar invitación':'Registrar otro celular'}" onclick="reinvitar('${esc(f.id)}',this)">${f.estado==='Invitado'?IC.sync:svg('<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 17h2"/>',2)}</button>`:''}
-   ${admin&&f.estado!=='De baja'&&f.id!==yo.id?`<button aria-label="Dar de baja a ${esc(f.nombre)}" onclick="darBaja('${esc(f.id)}','${esc(f.nombre)}',this)" style="color:var(--mal)">${svg('<path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>',2)}</button>`:''}</div></div>`;};
+   ${mas}</div></div>`;};
  fcard(`${sedes.length>1?`<div class="seg">${sedes.map(s=>`<button type="button" class="${s===FV.sede?'on':''}" onclick="FV.sede='${esc(s)}';pintarLista()">${esc(s)} · ${cuenta(s)}</button>`).join('')}</div>`:''}
-  <div class="card"><h2>Firmantes de ${esc(FV.sede)}<span class="tag hu">${esc(yo.rol)}</span></h2>${de.length?de.map(fila).join(''):'<div class="vacio">Aún no hay firmantes en esta sede.</div>'}</div>
-  <button class="fbtn" onclick="FV.vista='invitar';FV.prefill='';pintarFirm()">+ Invitar firmante</button>
+  <p class="sec sec2">Firmantes de ${esc(FV.sede)}<span class="tag hu">${esc(yo.rol)}</span></p><div class="grupo">${de.length?de.map(fila).join(''):'<div class="card"><div class="vacio">Aún no hay firmantes en esta sede.</div></div>'}</div>
+  <button class="fbtn" onclick="FV.vista='invitar';FV.prefill='';pintarFirm()">${svg('<path d="M12 5v14M5 12h14"/>',2.4)}Invitar firmante</button>
   <p class="nota" style="text-align:center">${admin?'Puedes invitar en las dos sedes, nombrar coordinadores y dar de baja.':'Como coordinador puedes invitar firmantes de '+esc(yo.sede)+'. Para dar de baja a alguien, pídeselo al administrador.'}</p>`);}
 function pintarInvitar(){const yo=(sesionVigente()||{}).yo||yoDisp(),admin=yo.rol==='Administrador';
  fcard(`<div class="card"><h2>Invitar firmante</h2><p class="nota" style="margin-top:0">Le llegará por WhatsApp un enlace para registrar su huella en su celular. El enlace sirve 3 días.</p>

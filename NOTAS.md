@@ -54,6 +54,9 @@ Sedes: Barranquilla y Baranoa.
 - Lugar de la ronda en píldoras (12 nov 2026): por sede, la de siempre (Barranquilla "Cirugía piso 2",
   Baranoa "Cirugía", en `LUGARES_BASE`) ya elegida + "Otro". Lo escrito en "Otro" queda como píldora en ese
   celular (hasta 5 por sede); si coincide con una existente (tildes, mayúsculas, espacios) usa la existente.
+- Bloqueo (16 nov 2026): con huella registrada en el celular, todo lo que está debajo de "Quien hace la ronda" (lugar, cilindros,
+  quien recibe, registrar, descartar) queda bloqueado hasta iniciar con la huella; la sede sí se elige sin huella.
+  Si no se puede mostrar el botón de iniciar (sin señal y sin retos de reserva), no se bloquea y pide la huella al confirmar.
 - Si el celular tiene huella registrada, "Quien hace la ronda" es una sola línea (sin elegir nombre ni firmar
   con el dedo). Si no inició con huella, la pide al tocar "Estoy de acuerdo". Sin huella (Kevin hoy): igual que antes.
 - Quien recibe se recuerda por sede en cada celular (la jefe aparece elegida en la siguiente ronda).

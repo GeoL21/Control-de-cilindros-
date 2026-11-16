@@ -402,6 +402,11 @@ nav button.on .i{background:var(--rosa);color:var(--cont)}
  .snack{bottom:28px;left:calc(220px + 28px);right:28px}
  .mas summary:hover{background:var(--tarjeta2)}
 }
+
+/* Ronda bloqueada hasta iniciar con huella */
+#vNueva.bloq .acc{position:static}
+#vNueva.bloq #cLugar,#vNueva.bloq .sec-cil,#vNueva.bloq .sec-rec,#vNueva.bloq .acc,#vNueva.bloq #btnDesc{opacity:.4;filter:grayscale(.4);pointer-events:none;transition:opacity 350ms var(--m3),filter 350ms var(--m3)}
+#vNueva #cLugar,#vNueva .sec-cil,#vNueva .sec-rec,#vNueva .acc{transition:opacity 350ms var(--m3),filter 350ms var(--m3)}
 </style></head><body>
 <header><div class="hrow"><a class="volver" href="https://geol21.github.io/" aria-label="Volver al portal de apps"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg></a><img src="logo-crc.png" alt="Clínica Reina Catalina"></div><h1 id="hTit">Ronda de cilindros</h1><p id="hSub">Clínica Reina Catalina</p></header>
 <div class="topbar" id="topbar"><div class="tt"><h2 id="tituloVista">Nueva ronda</h2><small>Ronda diaria de cilindros</small></div>
@@ -614,7 +619,12 @@ async function retoParaHuella(){let l=retosVig();if(!l.length){await llenarRetos
  const r=l.shift();ls.set('retos',l);llenarRetos();return r;}
 const horaCorta=t=>new Date(t).toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit',timeZone:ZONA});
 const diaDe=t=>new Date(t).toLocaleDateString('es-CO',{day:'2-digit',month:'2-digit',year:'numeric',timeZone:ZONA});
-function pintarInicio(){const box=$('ini'),y=yoDisp(),i=inicioAct();if(!box)return;
+/* Con huella registrada en este celular: lo de abajo queda bloqueado hasta iniciar la ronda con la huella.
+   Si el botón de iniciar no se puede mostrar (sin señal y sin retos de reserva), no se bloquea. */
+function aplicarBloqueo(){const v=$('vNueva');if(!v)return;const on=!!(yoDisp()&&!inicioAct()&&$('iniGo'));
+ v.classList.toggle('bloq',on);document.querySelectorAll('#cLugar,#vNueva .sec-cil,#vNueva .sec-rec,#vNueva .acc,#btnDesc').forEach(e=>{if(on)e.setAttribute('inert','');else e.removeAttribute('inert');});
+ const n=document.querySelector('#ini .ini-nota');if(n&&on)n.textContent='Inicia con tu huella para llenar la ronda. Tu nombre se llena solo y funciona sin señal.';}
+function pintarInicio(){setTimeout(aplicarBloqueo);const box=$('ini'),y=yoDisp(),i=inicioAct();if(!box)return;
  if(!y){box.innerHTML='';return;}
  if(i){const viejo=Date.now()-i.t>MAX_RONDA,otroDia=diaDe(i.t)!==diaDe(Date.now());
   box.innerHTML=`<div class="ini-ok" role="status">${HU_I}<div>${esc(i.nombre)} · verificado<small>Iniciaste la ronda con tu huella${otroDia?' el '+diaDe(i.t):''} a las ${horaCorta(i.t)}</small></div></div>`+

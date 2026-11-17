@@ -1,6 +1,6 @@
 // Service worker: deja la app abrir sin internet.
 // Si cambias los archivos de la lista, sube el número de versión (v1 -> v2).
-const VERSION = 'cilindros-v25';
+const VERSION = 'cilindros-v26';
 const ARCHIVOS = ['./', './index.html', './config.js', './manifest.webmanifest', './logo.jpg', './logo-crc.png', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './qrcode.js', './reporte.js', './firma.js', './firmar.html'];
 
 self.addEventListener('install', e => {

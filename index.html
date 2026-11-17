@@ -488,6 +488,10 @@ nav button.on{font-weight:800}
 .fir b{font-weight:600}
 .mas .menu button{font-weight:600}
 
+
+/* ---------- Colores por estado (17 nov 2026): blanco = ronda completa, ámbar = falta subir o falta una firma ---------- */
+.hit{background:#fff;box-shadow:inset 0 0 0 1px var(--tarjeta2)}
+.hit.pend,.hit.fpend{background:#FFF3DC;box-shadow:none}
 </style></head><body>
 <header><div class="hrow"><a class="volver" href="https://geol21.github.io/" aria-label="Volver al portal de apps"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg></a><img src="logo-crc.png" alt="Clínica Reina Catalina"></div><h1 id="hTit">Ronda de cilindros</h1><p id="hSub">Clínica Reina Catalina</p></header>
 <div class="topbar" id="topbar"><div class="tt"><h2 id="tituloVista">Nueva ronda</h2><small>Ronda diaria de cilindros</small></div>
@@ -1051,7 +1055,7 @@ async function pintarHist(){const cache=ls.get('hist',null),h=(cache&&cache.h)||
   const l=h[s]||[],p=cola.filter(r=>r.sede===s).sort((a,b)=>b.creada-a.creada);
   const pend=p.map(r=>`<div class="hit pend"><b>${esc(r.fecha)} · ${esc(r.hora)}</b><small>Lugar: ${esc(r.lugar)}</small><small>Ronda: ${esc(r.realiza)}</small><small>Recibe: ${esc(r.recibe)}</small><small>${r.items.length} ${r.items.length===1?'cilindro':'cilindros'}</small>
    <span class="tag ${r.estado==='error'?'mal':''}">${r.estado==='error'?'Rechazada: '+esc(r.error):'Pendiente de envío'}</span><button onclick="reintentar()">Enviar ahora</button><button class="sec" onclick="descargarLocal('${esc(r.id)}')">Descargar JPG</button></div>`).join('');
-  const env=l.map(r=>`<div class="hit"><b>${esc(r.fecha)} · ${esc(r.hora)}</b><small>Lugar: ${esc(r.lugar)}</small><small>Ronda: ${esc(r.realiza)}</small><small>Recibe: ${esc(r.recibe)}</small><small>${esc(r.total)} ${String(r.total)==='1'?'cilindro':'cilindros'}</small>${firmasHist(r,s)}${urlJpg(r.url)?`<a href="${esc(urlJpg(r.url))}" target="_blank" rel="noopener">Ver JPG</a>`:'<span class="tag">JPG no disponible</span>'}</div>`).join('');
+  const env=l.map(r=>`<div class="hit${estadoFirmas(r)[0]==='pe'?' fpend':''}"><b>${esc(r.fecha)} · ${esc(r.hora)}</b><small>Lugar: ${esc(r.lugar)}</small><small>Ronda: ${esc(r.realiza)}</small><small>Recibe: ${esc(r.recibe)}</small><small>${esc(r.total)} ${String(r.total)==='1'?'cilindro':'cilindros'}</small>${firmasHist(r,s)}${urlJpg(r.url)?`<a href="${esc(urlJpg(r.url))}" target="_blank" rel="noopener">Ver JPG</a>`:'<span class="tag">JPG no disponible</span>'}</div>`).join('');
   return `<div class="hcol"><h3>Historial de ${esc(s)}<span>${l.length+p.length}</span></h3>${pend}${env||(p.length?'':'<div class="vacio">Sin rondas para mostrar.</div>')}</div>`;}).join('')+'</div>';}
 async function cargarHist(silencioso){await pintarHist();
  try{const h=await api('historial',null,30000);ls.set('hist',{t:Date.now(),h});conectado=true;}

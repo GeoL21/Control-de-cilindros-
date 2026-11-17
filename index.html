@@ -492,9 +492,18 @@ nav button.on{font-weight:800}
 /* ---------- Colores por estado (17 nov 2026): blanco = ronda completa, ámbar = falta subir o falta una firma ---------- */
 .hit{background:#fff;box-shadow:inset 0 0 0 1px var(--tarjeta2)}
 .hit.pend,.hit.fpend{background:#FFF3DC;box-shadow:none}
+
+/* ---------- Botón redondo de volver al portal también en el PC (17 nov 2026) ---------- */
+.volver-pc{display:none}
+@media (min-width:1024px){
+  .volver-pc{display:flex;width:48px;height:48px;border-radius:24px;background:var(--tarjeta2);color:var(--txt);align-items:center;justify-content:center;margin:0 0 14px;text-decoration:none;transition:transform 150ms cubic-bezier(.23,1,.32,1)}
+  .volver-pc svg{width:24px;height:24px}
+  .volver-pc:hover{background:#FFCCD4}
+  .volver-pc:active{transform:scale(.94)}
+}
 </style></head><body>
 <header><div class="hrow"><a class="volver" href="https://geol21.github.io/" aria-label="Volver al portal de apps"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg></a><img src="logo-crc.png" alt="Clínica Reina Catalina"></div><h1 id="hTit">Ronda de cilindros</h1><p id="hSub">Clínica Reina Catalina</p></header>
-<div class="topbar" id="topbar"><div class="tt"><h2 id="tituloVista">Nueva ronda</h2><small>Ronda diaria de cilindros</small></div>
+<div class="topbar" id="topbar"><div class="tt"><a class="volver-pc" href="https://geol21.github.io/" aria-label="Volver al portal de apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></a><h2 id="tituloVista">Nueva ronda</h2><small>Ronda diaria de cilindros</small></div>
 <div class="progreso" id="progreso" role="status"><b>Ronda en curso<span id="pgN"></span></b><small id="pgTxt"></small><div class="bar"><i id="pgBar"></i></div></div>
 <div class="estado" id="estBox"><div class="pt"><span class="ico" id="dot"></span><span id="estTxt">…</span></div><div style="display:flex;gap:6px;align-items:center"><span class="hora" aria-label="Hora de Colombia"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span id="fHora"></span></span><button class="sec" id="btnInst" style="display:none">Instalar</button><button id="btnSync" style="display:none" onclick="sincronizar()">Enviar ahora</button></div></div>
 </div>

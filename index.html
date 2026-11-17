@@ -6,8 +6,8 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--ease-out:cubic-bezier(0.23,1,0.32,1);--vino:#6A1B3A;--vino2:#4E1229;--rosa:#F7F1F3;--borde:#DCC8D0;--txt:#26181D;--ok:#2E7D5B;--aviso:#C77700;--mal:#B3261E}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -409,6 +409,85 @@ nav button.on .i{background:var(--rosa);color:var(--cont)}
 #vNueva.bloq .acc{position:static}
 #vNueva.bloq #cLugar,#vNueva.bloq .sec-cil,#vNueva.bloq .sec-rec,#vNueva.bloq .acc,#vNueva.bloq #btnDesc{opacity:.4;filter:grayscale(.4);pointer-events:none;transition:opacity 350ms var(--m3),filter 350ms var(--m3)}
 #vNueva #cLugar,#vNueva .sec-cil,#vNueva .sec-rec,#vNueva .acc{transition:opacity 350ms var(--m3),filter 350ms var(--m3)}
+
+/* ---------- Ajuste 17 nov 2026: letras más gruesas y color un pelín más vivo (teléfono y PC) ---------- */
+:root{--vino:#84303F;--vino2:#6B2433;--rosa:#FFCCD4;--borde:#D3B8BC;--txt:#160D0E;--fondo:#FFF7F6;--tarjeta:#F7E3E6;--tarjeta2:#EFD5D9;--sec2:#45343A;--cont:#33030F}
+body{font-weight:500}
+header h1{font-weight:800}
+.estado{font-weight:700}
+.estado button{font-weight:800}
+.progreso b span{font-weight:800}
+.progreso small{font-weight:700}
+.card h2{font-weight:800}
+.reloj{font-weight:800}
+label,.lab{font-weight:700}
+.del{font-weight:800}
+.add{font-weight:800}
+.lim{font-weight:800}
+.seg button,.chip{font-weight:800}
+.chip{font-weight:700}
+.sug .chip{font-weight:600}
+.sug .chip b{font-weight:800}
+.emsg{font-weight:700}
+.resu .ed{font-weight:800}
+.tag{font-weight:800}
+.falta{font-weight:700}
+.reg{font-weight:800}
+label input,label select,label textarea{font-weight:500}
+nav button{font-weight:800}
+.hit .tag{font-weight:800}
+.hit a,.hit button{font-weight:800}
+.hinfo button{font-weight:800}
+.modal a,.modal button{font-weight:800}
+.toast{font-weight:700}
+.invlink{font-weight:800}
+.hit .ft{font-weight:800}
+.hpie button{font-weight:700}
+.ini-go{font-weight:800}
+.ini-ok{font-weight:800}
+.ini-ok small{font-weight:700}
+.ini-av{font-weight:700}
+.ini-acc button{font-weight:800}
+#confirmar dt{font-weight:700}
+#confirmar dd{font-weight:800}
+#confirmar .cerr{font-weight:700}
+#cRealiza .linea{font-weight:800}
+.desc{font-weight:800}
+.fir .av{font-weight:800}
+.fbtn{font-weight:800}
+.ferr{font-weight:700}
+@media (min-width:1024px){.topbar h2{font-weight:800}
+.topbar .tt small{font-weight:700}
+.marca b{font-weight:800}
+nav .pie{font-weight:600}
+}header h1{font-weight:800}
+.card h2{font-weight:700}
+label,.lab{font-weight:600}
+.seg button{font-weight:700}
+.chip{font-weight:600}
+.item-h b{font-weight:800}
+.add{font-weight:700}
+.reg{font-weight:700}
+.ini-go,.fbtn{font-weight:700}
+header h1{font-weight:800}
+nav button{font-weight:600}
+nav button.on{font-weight:800}
+@media (min-width:1024px){nav button{font-weight:600}
+nav button.on{font-weight:800}
+.marca b{font-weight:800}
+.topbar h2{font-weight:800}
+}.sec{font-weight:700}
+.card h2{font-weight:600}
+.estado .hora{font-weight:700}
+#cRealiza .linea .lt b{font-weight:600}
+#cRealiza .linea .lt small{font-weight:500}
+.resu .gt{font-weight:800}
+.resu .rt b{font-weight:600}
+.resu .rn{font-weight:700}
+.snack .sa button{font-weight:800}
+.fir b{font-weight:600}
+.mas .menu button{font-weight:600}
+
 </style></head><body>
 <header><div class="hrow"><a class="volver" href="https://geol21.github.io/" aria-label="Volver al portal de apps"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg></a><img src="logo-crc.png" alt="Clínica Reina Catalina"></div><h1 id="hTit">Ronda de cilindros</h1><p id="hSub">Clínica Reina Catalina</p></header>
 <div class="topbar" id="topbar"><div class="tt"><h2 id="tituloVista">Nueva ronda</h2><small>Ronda diaria de cilindros</small></div>

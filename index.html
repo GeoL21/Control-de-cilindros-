@@ -800,6 +800,8 @@ function usarSug(b){const e=b.closest('.item'),o=e.querySelector('.obs');o.value
 document.addEventListener('input',ev=>{const t=ev.target;
  if(t.classList&&t.classList.contains('serial')){const p=t.selectionStart,v=t.value.toUpperCase();if(v!==t.value){t.value=v;try{t.setSelectionRange(p,p);}catch(e){}}}
  else if(t.classList&&t.classList.contains('obs'))pintaSug(t.closest('.item'));},true);
+/* Al tocar Observación (aunque esté vacía) se muestran las más usadas */
+document.addEventListener('focusin',ev=>{const t=ev.target;if(t.classList&&t.classList.contains('obs'))pintaSug(t.closest('.item'));});
 function delItem(b){const it=b.closest('.item');if(it.classList.contains('saliendo')||document.querySelectorAll('.item:not(.saliendo)').length<2)return;it.classList.add('saliendo');setTimeout(()=>{it.remove();num();guardarBorrador();actualizar();},150);}
 function num(){document.querySelectorAll('.item').forEach((e,i)=>{e.querySelector('.num').textContent='Cilindro '+(i+1);if(e.classList.contains('cerrado'))pintaResu(e,i+1);});}
 function setGas(e,v){e.querySelector('.gas').value=GASES.includes(v)?v:'';const g=e.querySelector('.gas').value;

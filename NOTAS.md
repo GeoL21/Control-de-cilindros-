@@ -30,7 +30,7 @@ Sedes: Barranquilla y Baranoa.
 - Datos del teléfono con prefijo `cil:` (las apps de geol21.github.io comparten almacenamiento); las claves viejas se migran solas.
 - El reporte JPG debe quedar igual.
 - Todo en español, con el logo de la clínica (`logo-crc.png` en pantalla; `logo.jpg` sigue en el reporte JPG).
-  Vino suave `#8E4953`, letra Google Sans Flex. Firmantes: WhatsApp a la vista y menú de tres puntos (otro celular, dar de baja).
+  Vino suave `#84303F` (ajuste 17 nov 2026), letra Google Sans Flex (texto 560, negritas 660–860). Firmantes: WhatsApp a la vista y menú de tres puntos (otro celular, dar de baja).
 - Nada en Play Store; se distribuye solo por GitHub.
 
 ## Firmas con huella (nov 2026)
@@ -68,3 +68,15 @@ Sedes: Barranquilla y Baranoa.
 - No romper la hoja ni los registros existentes.
 - Al cambiar archivos, subir el número de `VERSION` en `sw.js` para que los celulares bajen la versión nueva.
 - Este repo es público: no escribir aquí códigos de acceso, claves ni URLs del servidor.
+
+## Revisión Pixel (18 nov 2026, agente revisor-pixel)
+- Íconos Material Symbols Rounded como SVG en línea (función `ms()` y `MSP`); en la barra, el ícono activo va relleno.
+- Mensaje de lo que falta: se mantiene "Te falta para registrar" con la lista completa y "Entendido" / "Ir ahí"
+  (decisión de Jorge); al tocar "Ir ahí" el campo parpadea en rojo (`.resalta`).
+- Sin chip "Listo" en Lugar (ya viene elegido). Registrar siempre en vino.
+- Quien recibe sin firmantes registrados (Baranoa): píldoras con los nombres ya usados en ese celular
+  (`cil:recibidores`, hasta 8 por sede) + "Otra persona"; el nombre escrito se une al existente si coincide.
+- Historial: horas "a. m." / "p. m." solo al mostrar (lo guardado y el JPG no cambian); rechazada o "No coincide" en rojo que late.
+- Aviso "Hay una versión nueva de la app · Actualizar"; el service worker instala con `cache: 'reload'`.
+- `firmar.html` con el estándar Pixel.
+- El título de sección se llama `.titsec` (antes `.sec`, que chocaba con los botones secundarios).

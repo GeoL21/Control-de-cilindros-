@@ -1,10 +1,11 @@
 // Service worker: deja la app abrir sin internet.
 // Si cambias los archivos de la lista, sube el número de versión (v1 -> v2).
-const VERSION = 'cilindros-v27';
+const VERSION = 'cilindros-v28';
 const ARCHIVOS = ['./', './index.html', './config.js', './manifest.webmanifest', './logo.jpg', './logo-crc.png', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './qrcode.js', './reporte.js', './firma.js', './firmar.html'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(VERSION).then(c => c.addAll(ARCHIVOS)).then(() => self.skipWaiting()));
+  // cache: 'reload' evita guardar copias viejas que tenga el navegador
+  e.waitUntil(caches.open(VERSION).then(c => c.addAll(ARCHIVOS.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', e => {

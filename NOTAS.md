@@ -21,7 +21,7 @@ Sedes: Barranquilla y Baranoa.
 
 ## Reglas que no se cambian
 - Debe funcionar sin señal (hay áreas sin WiFi ni datos) y subir los registros al volver la conexión.
-- Reorganización aprobada por Jorge (16 nov 2026), estilo Material 3 / "estilo Mornye" (skill nueva-pwa, paso 5):
+- Reorganización aprobada por Jorge (16 nov 2026), estilo estándar "Pixel" (Material 3) (skill nueva-pwa, paso 5):
   encabezado con volver al portal, logo a la derecha, título grande y "fecha · lugar"; reloj pequeño (hora de Colombia);
   secciones Sede, Ronda (quien hace la ronda + lugar), Cilindros y Quien recibe con tarjetas agrupadas;
   chips verdes "Listo" / ámbar "Falta firma"; sin tarjeta "Ronda en curso": lo que falta sale en un mensaje
